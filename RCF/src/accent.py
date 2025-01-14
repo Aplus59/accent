@@ -28,21 +28,26 @@ class Accent(AccentTemplate):
         begin = time()
         for i in range(len(ks) - 1):
             assert ks[i] < ks[i + 1]
+            # kiểm tra thứ tự giá trị của ks
         cur_scores = model.get_scores_per_user(user_id, data, args)
+        # lấy score của ng dùng vs item đc gợi ý
         visited = data.user_positive_list[user_id]
+        # Danh sách phần tử mà người dùng tích cực tt
         _, topk = get_topk(cur_scores, set(visited), ks[-1])
+        # lấy top k trong trỏng
         recommended_item = topk[0][0]
+        # món đc gợi ý
 
         # init influence of actions on the top k items
         influences = np.zeros((ks[-1], len(visited)))
+        # khởi tạo mảng ảnh hưởng
         for i in range(ks[-1]):
             influences[i] = model.get_influence3(user_id, topk[i][0], data, args)
-
+        # tính toán ảnh hưởng của việc bỏ một món hàng trong top-k đối với điểm số của các món hàng còn lại.
         res = None
         best_repl = -1
         best_i = -1
         best_gap = 1e9
-
         ret = []
         for i in range(1, ks[-1]):  # for each item in the original top k
             # try to replace rec with this item
@@ -54,7 +59,7 @@ class Accent(AccentTemplate):
             if i + 1 == ks[len(ret)]:
                 predicted_scores = np.array([cur_scores[item] for item, _ in topk[:(i + 1)]])
                 for item in res:
-                    predicted_scores -= influences[:(i + 1), item]
+                    predicted_scores -= influences[:(i + 1), item] 
                 assert predicted_scores[0] < predicted_scores[best_i]
                 assert abs(predicted_scores[0] - predicted_scores[best_i] - best_gap) < 1e-6
 
