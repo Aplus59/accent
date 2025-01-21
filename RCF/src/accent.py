@@ -51,7 +51,7 @@ class Accent(AccentTemplate):
         ret = []
         for i in range(1, ks[-1]):  # for each item in the original top k
             # try to replace rec with this item
-            tmp_res, tmp_gap = Accent.try_replace(topk[i][0], topk[0][1] - topk[i][1], influences[0] - influences[i])
+            tmp_res, tmp_gap = Accent.try_replace(topk[i][0], topk[0][1] - topk[i][1], influences[0] - influences[i],visited)
             if tmp_res is not None and (
                     res is None or len(tmp_res) < len(res) or (len(tmp_res) == len(res) and tmp_gap < best_gap)):
                 res, best_repl, best_i, best_gap = tmp_res, topk[i][0], i, tmp_gap

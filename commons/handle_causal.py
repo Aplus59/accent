@@ -46,13 +46,13 @@ def find_causal():
             current_node = Node(f"{movie['id']}", parent=current_node)
         
         # Chỉ hiển thị các cây có ít nhất một node con
-        print(f"Tree for {base_name}:")
-        for pre, fill, node in RenderTree(root):
-            print(f"{pre}{node.name}")
-        print("\n")
+        # print(f"Tree for {base_name}:")
+        # for pre, fill, node in RenderTree(root):
+        #     print(f"{pre}{node.name}")
+        # print("\n")
     
 
-    # Hiển thị toàn bộ cây với root chung
+    #Hiển thị toàn bộ cây với root chung
     # print("Main Tree:")
     # for pre, fill, node in RenderTree(main_root):
     #     print(f"{pre}{node.name}")
@@ -81,4 +81,5 @@ def find_child(main_root,name):
     else:
         print("Node not found.")
         return None
-
+    
+# causal_tree = find_causal()

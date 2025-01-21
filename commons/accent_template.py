@@ -1,9 +1,10 @@
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
+from commons.handle_causal import find_causal,find_child
 
 
 class AccentTemplate(ExplanationAlgorithmTemplate):
     @staticmethod
-    def try_replace(repl, score_gap, gap_infl):
+    def try_replace(repl, score_gap, gap_infl,visited):
         """
         given a replacement item, try to swap the replacement and the recommendation
         Args:
@@ -14,7 +15,27 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         Returns: if possible, return the set of items that must be removed to swap and the new score gap
                 else, None, 1e9
         """
+        causal_tree = find_causal()
         print(f'try replace', repl, score_gap)
+
+        causal_list = []
+        for id in visited:
+            children = find_child(causal_tree,f'{id}')
+            if len(children) != 0:
+                print(children)
+                causal_list.append([id] + [int(child) for child in children if int(child) in visited])
+            else:
+                causal_list.append(id)
+
+        index_causal_list = []
+        for item in causal_list:
+            if isinstance(item, list):  # Nếu item là một danh sách con
+                sub_index = [visited.index(sub_item) for sub_item in item]  # Tìm chỉ số của các phần tử con
+                index_causal_list.append(sub_index)
+            else:  # Nếu item là một phần tử đơn
+                index_causal_list.append(visited.index(item))
+
+        
         sorted_infl = np.argsort(-gap_infl) # sắp xếp pt theo độ ảnh hưởng giảm dần.
 
         removed_items = set() # Khởi tạo một tập hợp các phần tử sẽ bị loại bỏ để thực hiện việc thay thế.

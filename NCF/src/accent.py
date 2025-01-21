@@ -5,7 +5,6 @@ import numpy as np
 from NCF.src.helper import get_scores
 from commons.accent_template import AccentTemplate
 
-
 class Accent(AccentTemplate):
     @staticmethod
     def find_counterfactual_multiple_k(user, ks, model, data, args):
@@ -47,6 +46,8 @@ class Accent(AccentTemplate):
             tmp = -model.get_influence_on_test_loss([test_idx], train_idx)
             #Tính toán ảnh hưởng của item đối với mất mát kiểm tra:
             influences[i] = tmp[u_idx]
+            #tmp này chứa ảnh hưởng của cả tập(liên quan i và u), sau đó lấy thằng ảnh hưởng mà user có tương tác th, u_indx
+            #túm lại là tính ảnh hưởng các item mà người dùng đã tt
             #Lưu ảnh hưởng vào ma trận ảnh hưởng (influences):
 
         res = None # kết quả của phản chứng
@@ -56,7 +57,7 @@ class Accent(AccentTemplate):
 
         ret = []  # lưu kết quả lần thay thế.
         for i in range(1, ks[-1]):
-            tmp_res, tmp_gap = Accent.try_replace(topk[i], scores[topk[0]] - scores[topk[i]], influences[0] - influences[i])
+            tmp_res, tmp_gap = Accent.try_replace(topk[i], scores[topk[0]] - scores[topk[i]], influences[0] - influences[i],visited)
             # thử thay thế một phần tử , trả về các item cần remove và gap
             if tmp_res is not None and (
                     res is None or len(tmp_res) < len(res) or (len(tmp_res) == len(res) and tmp_gap < best_gap)):
