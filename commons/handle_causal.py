@@ -51,22 +51,36 @@ def find_causal():
         for pre, fill, node in RenderTree(root):
             print(f"{pre}{node.name}")
         print("\n")
-    return main_root
+    
 
     # Hiển thị toàn bộ cây với root chung
-    # print("Main Tree:")
-    # for pre, fill, node in RenderTree(main_root):
-    #     print(f"{pre}{node.name}")
-    # print("\n")
+    print("Main Tree:")
+    for pre, fill, node in RenderTree(main_root):
+        print(f"{pre}{node.name}")
+    print("\n")
 
-    # # Tìm kiếm node trong cây
-    # target_node = find(main_root, lambda node: node.name == "234")
+    # Tìm kiếm node trong cây
+    target_node = find(main_root, lambda node: node.name == "234")
 
-    # # Kiểm tra và lấy các nút con của nó
-    # if target_node:
-    #     print(f"Found node: {target_node.name}")
-    #     print("Children and Descendants:")
-    #     for descendant in target_node.descendants:  # Trả về tất cả các node con, kể cả các cấp sâu hơn
-    #         print(descendant.name)
-    # else:
-    #     print("Node not found.")
+    # Kiểm tra và lấy các nút con của nó
+    if target_node:
+        print(f"Found node: {target_node.name}")
+        print("Children and Descendants:")
+        for descendant in target_node.descendants:  # Trả về tất cả các node con, kể cả các cấp sâu hơn
+            print(descendant.name)
+    else:
+        print("Node not found.")
+
+    return main_root
+def find_child(main_root,name):
+    target_node = find(main_root, lambda node: node.name == name)
+
+# Kiểm tra và lưu các nút con của nó
+    if target_node:
+        descendants_list = [descendant.name for descendant in target_node.descendants]  # Lưu tên các node con vào danh sách
+        return descendants_list
+    else:
+        print("Node not found.")
+        return None
+
+find_causal()
