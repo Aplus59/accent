@@ -45,7 +45,6 @@ def find_causal():
         for movie in group[1:]:
             current_node = Node(f"{movie['id']}", parent=current_node)
         
-        # Chỉ hiển thị các cây có ít nhất một node con
         # print(f"Tree for {base_name}:")
         # for pre, fill, node in RenderTree(root):
         #     print(f"{pre}{node.name}")

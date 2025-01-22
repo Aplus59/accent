@@ -22,7 +22,6 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         for id in visited:
             children = find_child(causal_tree,f'{id}')
             if len(children) != 0:
-                print(children)
                 causal_list.append([id] + [int(child) for child in children if int(child) in visited])
             else:
                 causal_list.append(id)
@@ -38,6 +37,8 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         
         sorted_infl = np.argsort(-gap_infl) # sắp xếp pt theo độ ảnh hưởng giảm dần.
 
+        #[10,3,4]
+        #[0,2,1]
         removed_items = set() # Khởi tạo một tập hợp các phần tử sẽ bị loại bỏ để thực hiện việc thay thế.
 
         # score_1: 100

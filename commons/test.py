@@ -4,7 +4,9 @@ visited = [1, 2, 3, 4, 5, 6, 7, 364, 9, 60, 11, 12, 67, 14, 15, 16, 17, 18, 19, 
            38, 39, 40, 41, 42, 78, 44, 45, 46, 47]
 
 # Giả sử gap_infl là một danh sách con của visited, ví dụ là những bộ phim có chỉ số lẻ
-gap_infl = [idx for idx in visited if idx % 2 != 0]
+gap_infl = [12, 2, 35, 4, 52, 16, 27, 4, 9, 6, 15, 12, 7, 14, 15, 6, 27, 8, 19, 20, 
+           2, 1, 7, 60, 45, 26, 27, 2, 29, 33, 13, 59, 13, 3, 61, 36, 37, 
+           18, 39, 40, 5, 42, 78, 44, 48, 46, 47]
 
 # Đoạn mã tiếp theo bạn có thể chạy sau khi đã tạo dữ liệu giả
 from handle_causal import find_causal, find_child

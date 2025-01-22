@@ -208,6 +208,7 @@ class NCF(GenericNeuralNet):
 
         assert len(test_indices) == 1
         self.test_index = test_indices[0]
+        # lấy tập dữ liệu liên quan đến u và i
         self.train_indices_of_test_case = self.get_train_indices_of_test_case(test_indices)
         self.params_test = self.get_test_params(test_index=test_indices)
         self.vec_to_list_test = self.get_vec_to_list_fn_test()
