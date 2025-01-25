@@ -6,7 +6,7 @@ from anytree import Node, RenderTree, find
 sys.stdout.reconfigure(encoding='utf-8')
 
 # Đọc dữ liệu từ tệp
-file_path = 'commons/u.item'
+file_path = './u.item'
 movies = []
 
 def find_causal():

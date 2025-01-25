@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 from RCF.src.generate_counterfactual import generate_cf
 from RCF.src.helper import parse_args
 from commons.helper import evaluate_files

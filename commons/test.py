@@ -8,6 +8,8 @@ gap_infl = [12, 2, 35, 4, 52, 16, 27, 4, 9, 6, 15, 12, 7, 14, 15, 6, 27, 8, 19, 
            2, 1, 7, 60, 45, 26, 27, 2, 29, 33, 13, 59, 13, 3, 61, 36, 37, 
            18, 39, 40, 5, 42, 78, 44, 48, 46, 47]
 
+score_gap = 100  # Giả sử chênh lệch điểm số ban đầu
+
 # Đoạn mã tiếp theo bạn có thể chạy sau khi đã tạo dữ liệu giả
 from handle_causal import find_causal, find_child
 from anytree import Node, RenderTree, find
@@ -39,3 +41,36 @@ for item in causal_list:
 print('index',index_causal_list)
 
 # Kết quả sẽ có index_causal_list chứa các chỉ số của causal_list trong visited
+
+# Tính toán ảnh hưởng với cấu trúc nhân quả
+sorted_infl = []
+for idx_group in index_causal_list:
+    if isinstance(idx_group, list):
+        # Tổng ảnh hưởng trong nhóm nhân quả
+        group_infl = sum(gap_infl[idx] for idx in idx_group)
+        sorted_infl.append((idx_group, group_infl))
+    else:
+        sorted_infl.append(([idx_group], gap_infl[idx_group]))
+
+print('sorted_infl',sorted_infl)
+
+# Sắp xếp ưu tiên số lượng phần tử trong tuple nhỏ nhất, nếu số lượng phần tử bằng nhau, xét đến infl
+sorted_infl.sort(key=lambda x: (len(x[0]), -x[1]))
+
+
+print('sorted_infl',sorted_infl)
+removed_items = set()
+
+# Xử lý từng nhóm ảnh hưởng đã sắp xếp
+for group, group_infl in sorted_infl:
+    if group_infl < 0:  # Không thể giảm chênh lệch thêm nữa
+        break
+    removed_items.update(group)  # Thêm toàn bộ nhóm vào tập loại bỏ
+    score_gap -= group_infl
+    if score_gap < 0:  # Nếu thay thế đạt yêu cầu
+        break
+
+if score_gap < 0:
+    print(f'Replace: {removed_items}')
+else:
+    print(f'Cannot replace')

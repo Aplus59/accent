@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from NCF.src.get_rec import get_rec
 from NCF.src.helper import get_model
 

@@ -1,3 +1,7 @@
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
 from NCF.src.get_counterfactual import generate_cf
 from NCF.src.get_new_scores import get_new_scores
 from NCF.src.helper import parse_args

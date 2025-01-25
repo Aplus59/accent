@@ -1,6 +1,9 @@
 import os
 
 import pandas as pd
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 
 from RCF.src.Utilis import get_share_attributes
 from RCF.src.moive_loader import movie_loader

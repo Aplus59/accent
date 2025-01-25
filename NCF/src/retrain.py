@@ -41,7 +41,7 @@ def retrain(algo, ks):
         for i in range(5):
             path = prepare_path(home_dir, user_id, counterfactual, i)
             if path is None:
-                print('already done', idx, user_id, item_id, topk, counterfactual, predicted_scores, replacement, i, seed)
+                print('already done', idx, user_id, item_id, topk, counterfactual, predicted_scores, replacement, i)
                 continue
             Path(path).mkdir(parents=True, exist_ok=True)
             tf.reset_default_graph()
