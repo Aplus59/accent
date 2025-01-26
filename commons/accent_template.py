@@ -52,8 +52,18 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         for group, group_infl in sorted_infl:
             if group_infl < 0:  # Không thể giảm chênh lệch thêm nữa
                 break
-            removed_items.update(group)  # Thêm toàn bộ nhóm vào tập loại bỏ
+
+            # Kiểm tra các phần tử đã tồn tại trong removed_items
+            group_set = set(group)
+            overlap_items = group_set & removed_items  # Các phần tử trùng lặp
+            overlap_infl = sum(gap_infl[item] for item in overlap_items)  # Ảnh hưởng của các phần tử trùng lặp
+            
             score_gap -= group_infl
+            # Cộng lại ảnh hưởng của các phần tử trùng lặp vào score_gap
+            score_gap += overlap_infl
+
+            removed_items.update(group)  # Thêm toàn bộ nhóm vào tập loại bỏ
+            # score_gap -= group_infl
             if score_gap < 0:  # Nếu thay thế đạt yêu cầu
                 break
         if score_gap < 0:

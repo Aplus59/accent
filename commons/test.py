@@ -43,17 +43,20 @@ print('index',index_causal_list)
 # Kết quả sẽ có index_causal_list chứa các chỉ số của causal_list trong visited
 
 # Tính toán ảnh hưởng với cấu trúc nhân quả
-sorted_infl = []
+sum_infl = []
 for idx_group in index_causal_list:
     if isinstance(idx_group, list):
         # Tổng ảnh hưởng trong nhóm nhân quả
         group_infl = sum(gap_infl[idx] for idx in idx_group)
-        sorted_infl.append((idx_group, group_infl))
+        sum_infl.append((idx_group, group_infl))
     else:
-        sorted_infl.append(([idx_group], gap_infl[idx_group]))
+        sum_infl.append(([idx_group], gap_infl[idx_group]))
 
-print('sorted_infl',sorted_infl)
+print('sum_infl',sum_infl)
 
+#sum_infl [([0], 12), ([1], 2), ([2], 35), ([3], 4), ([4], 52), ([5], 16), ([6], 27), ([7], 4), ([8], 9), ([9, 31, 34], 126), ([10], 15), ([11], 12), ([12, 7], 11), ([13], 14), ([14], 15), ([15], 6), ([16], 27), ([17], 8), ([18], 19), ([19], 20), ([20], 2), ([21], 1), ([22], 7), ([23], 60), ([24], 45), ([25], 26), ([26], 27), ([27], 2), ([28], 29), ([29], 33), ([30], 13), ([31, 34], 120), ([32], 13), ([33], 3), ([34], 61), ([35], 36), ([36], 37), ([37], 18), ([38], 39), ([39], 40), ([40], 5), ([41], 42), ([42], 78), ([43], 44), ([44], 48), ([45], 46), ([46], 47)]
+
+sorted_infl = sum_infl
 # Sắp xếp ưu tiên số lượng phần tử trong tuple nhỏ nhất, nếu số lượng phần tử bằng nhau, xét đến infl
 sorted_infl.sort(key=lambda x: (len(x[0]), -x[1]))
 
@@ -65,8 +68,18 @@ removed_items = set()
 for group, group_infl in sorted_infl:
     if group_infl < 0:  # Không thể giảm chênh lệch thêm nữa
         break
-    removed_items.update(group)  # Thêm toàn bộ nhóm vào tập loại bỏ
+
+    # Kiểm tra các phần tử đã tồn tại trong removed_items
+    group_set = set(group)
+    overlap_items = group_set & removed_items  # Các phần tử trùng lặp
+    overlap_infl = sum(gap_infl[item] for item in overlap_items)  # Ảnh hưởng của các phần tử trùng lặp
+    
     score_gap -= group_infl
+    # Cộng lại ảnh hưởng của các phần tử trùng lặp vào score_gap
+    score_gap += overlap_infl
+
+    removed_items.update(group)  # Thêm toàn bộ nhóm vào tập loại bỏ
+    #score_gap -= group_infl
     if score_gap < 0:  # Nếu thay thế đạt yêu cầu
         break
 
