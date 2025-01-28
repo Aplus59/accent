@@ -1,15 +1,21 @@
 import sys
 import re
 from collections import defaultdict
+import os
+
 from anytree import Node, RenderTree, find
 # Thiết lập lại encoding mặc định
 sys.stdout.reconfigure(encoding='utf-8')
 
 # Đọc dữ liệu từ tệp
-file_path = './u.item'
-movies = []
+current_dir = os.path.dirname(os.path.abspath(__file__))  # Gets the directory of the script
+
+    # Set the full path to the file
+file_path = os.path.join(current_dir, '..', 'commons', 'u.item')
+
 
 def find_causal():
+    movies = []
     with open(file_path, encoding="ISO-8859-1") as file:
         for line in file:
             parts = line.strip().split('|')  # Tách dòng theo ký tự |
@@ -51,10 +57,12 @@ def find_causal():
         # print("\n")
     
 
-    #Hiển thị toàn bộ cây với root chung
+    # Hiển thị toàn bộ cây với root chung
     # print("Main Tree:")
     # for pre, fill, node in RenderTree(main_root):
-    #     print(f"{pre}{node.name}")
+    #     # Kiểm tra xem node.name có nằm trong khoảng từ 100 đến 200 không
+    #     if 100 <= int(node.name) <= 200:
+    #         print(f"{pre}{node.name}")
     # print("\n")
 
     # # Tìm kiếm node trong cây
@@ -81,4 +89,3 @@ def find_child(main_root,name):
         print("Node not found.")
         return None
     
-# causal_tree = find_causal()

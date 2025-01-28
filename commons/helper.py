@@ -5,6 +5,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from commons.handle_causal import find_causal,find_child
 
 
 def init_all_results(ks):
@@ -61,6 +62,7 @@ def counterfactual2path(user, counterfactual_set):
     :param counterfactual_set: the counterfactual explanation
     :return: a directory name
     """
+
     res = f'{user}-{"-".join(str(x) for x in sorted(counterfactual_set))}'
     if len(res) < 255:
         return res
@@ -233,3 +235,104 @@ def evaluate_files(parse_args, ks):
 
         print('swap', swap, swap / data.shape[0])
         print('size', set_size / swap)
+
+from ast import literal_eval
+
+# def evaluate_files(parse_args, ks):
+#     """
+#     given aa list of k values, evaluate the results of these k values
+#     Args:
+#         parse_args: a method to parse args from the command-line. The args should contain the algorithm to evaluate
+#         ks: a list of k values
+#     """
+#     args = parse_args()
+#     input_files = [f"{args.algo}_{k}.csv" for k in ks]
+
+#     for file in input_files:
+#         print(file)
+#         data = pd.read_csv(file)
+
+#         swap = 0
+#         set_size = 0
+
+#         for id, row in data.iterrows():
+#             user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
+#             if not isinstance(counterfactual, str) or not isinstance(row['actual_scores_avg'], str):
+#                 continue
+#             topk = literal_eval(topk)
+#             counterfactual = literal_eval(counterfactual)
+#             assert item_id == topk[0]
+#             actual_scores = literal_eval(row['actual_scores_avg'])
+
+#             replacement_rank = topk.index(replacement)
+#             if actual_scores[replacement_rank] > actual_scores[0]:
+#                 swap += 1
+#                 set_size += len(counterfactual)
+
+#         print('swap', swap, swap / data.shape[0])
+#         print('size', set_size / swap)
+
+def evaluate_files(parse_args, ks):
+    """
+    Đánh giá thuật toán với các giá trị k khác nhau và tính toán %Ccv.
+    Args:
+        parse_args: Hàm phân tích tham số đầu vào từ dòng lệnh.
+        ks: Danh sách các giá trị k.
+    """
+    args = parse_args()
+    input_files = [f"{args.algo}_{k}.csv" for k in ks]
+    print("eva, causal")
+    causal_tree = find_causal()  # Xây dựng cây nhân quả
+
+    for file in input_files:
+        print(f"Processing file: {file}")
+        data = pd.read_csv(file)
+
+        swap = 0
+        set_size = 0
+        ns = 0  # Đếm số lượng counterfactual thỏa mãn điều kiện nhân quả
+
+        for id, row in data.iterrows():
+            user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
+            if not isinstance(counterfactual, str) or not isinstance(row['actual_scores_avg'], str):
+                continue
+            topk = literal_eval(topk)
+            counterfactual = literal_eval(counterfactual)
+            assert item_id == topk[0]
+            actual_scores = literal_eval(row['actual_scores_avg'])
+
+            replacement_rank = topk.index(replacement)
+            if actual_scores[replacement_rank] > actual_scores[0]:
+                swap += 1
+                set_size += len(counterfactual)
+
+            # Kiểm tra điều kiện nhân quả
+            if satisfies_causal_conditions(counterfactual, causal_tree):
+                ns += 1
+
+        # Tính toán %Ccv
+        ccv = ns / data.shape[0] * 100
+        print('swap', swap, swap / data.shape[0])
+        print('size', set_size / swap if swap > 0 else 0)
+        print(f'Causal-constraint validity (%Ccv): {ccv:.2f}%')
+
+def satisfies_causal_conditions(counterfactual, causal_tree):
+    """
+    Kiểm tra điều kiện nhân quả.
+    Args:
+        counterfactual: Danh sách các item bị loại bỏ.
+        causal_tree: Cây nhân quả được xây dựng từ find_causal().
+    Returns:
+        True nếu tất cả các điều kiện nhân quả được thỏa mãn, False nếu vi phạm.
+    """
+    for item in counterfactual:
+        # Tìm danh sách các hậu duệ của item trong causal_tree
+        descendants = find_child(causal_tree, str(item))
+        
+        # Nếu tìm được hậu duệ, kiểm tra xem có item nào trong counterfactual là hậu duệ của item này không
+        if descendants is not None:
+            for descendant in descendants:
+                # Nếu hậu duệ của item bị bỏ mà item đó không có trong counterfactual, thì vi phạm nhân quả
+                if descendant not in counterfactual:
+                    return False
+    return True
