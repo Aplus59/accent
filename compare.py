@@ -107,9 +107,9 @@ def print_result(file):
 
     algo_size = get_size(file, res)
     print(f'{file} size: {np.mean(algo_size)}')
-
+    causal_tree = find_causal()
     # thêm causal
-    res_causal = get_causal(file)
+    res_causal = get_causal(file,causal_tree)
     print(f'causal {file}: {np.mean(res_causal)}')
 
 
