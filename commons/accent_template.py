@@ -18,72 +18,95 @@ def min_items_greater_than_a(sum_infl, a):
 
     print("w", all_items)
 
+    
+    list_item = [{'item': None,'value': 0,'taken_index': [0] * len(sum_infl)}]  # Stores the highest odd-summed subset
     taken_index = [0] * len(sum_infl)
     taken_index[1] = 1
-
-    list_item = [{'item': all_items[1][0]['item'],'value': all_items[1][0]['value'],'taken_index': taken_index}]  # Stores the highest odd-summed subset
+    list_item.append([{'item': all_items[1][0]['item'],'value': all_items[1][0]['value'],'taken_index': taken_index}])  # Stores the highest odd-summed subset
     
     if all_items[1][0]['value'] >= a:
         return  all_items[1][0]['item'], a - all_items[1][0]['value']
     print("list_item", list_item[0])
-
-
+    
     for i in range(2, len(sum_infl) + 1):
-        total = [{'value': 0, 'item': [],'taken_index':[0] * (len(sum_infl) + 2)} for _ in range(i + 2)]
+        total = [{'value': 0, 'item': [],'taken_index':[0] * (len(sum_infl) + 2)} for _ in range(i *2)]
         if i in all_items and 1 in all_items:
             total[0]['value'] = all_items[i][0]['value']
             total[0]['item'] = all_items[i][0]['item']
             total[0]['taken_index'][i] += 1
-        print("half j",math.floor((i) / 2),"index",i)
-
-        range_j = max(1, math.floor((i) / 2)) + 1
-
-
-        for j in range(1,range_j):
+        print("index",i)
+        for j in range(1,i+1):
             print("go go", i - j, j)
-            for offset, index_offset in [(i - j, j - 1), (j, i - j - 1)]:
-                if index_offset < len(list_item):
-                    taken_idx = list_item[index_offset]['taken_index']
-                    if offset in all_items and taken_idx[offset] < len(all_items[offset]) :
-                        keys = all_items[offset][taken_idx[offset]]['item']
-                        overlap_items = set(keys) & set(list_item[index_offset]['item'])
+            if j  < len(list_item):
+                taken_idx = list_item[j][0]['taken_index']
+                if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) :
+                    keys = all_items[i - j][taken_idx[i - j]]['item']
+                    overlap_items = set(keys) & set(list_item[j][0]['item'])
+                    if not overlap_items:
+                        total[j]['value'] = (
+                            list_item[j][0]['value'] + all_items[i - j][taken_idx[i - j]]['value']
+                        )
+                        total[j]['item'] = (
+                            list_item[j][0]['item'] + all_items[i - j][taken_idx[i - j]]['item']
+                        )
+                        total[j]['taken_index'] = taken_idx[:]
+                        total[j]['taken_index'][i - j] += 1
+                        print("not_overlap_list_item", list_item[j][0]['item'], "all", all_items[i - j][taken_idx[i - j]]['item'])
 
-                        if not overlap_items:
-                            total[j + (0 if offset == i - j else range_j)]['value'] = (
-                                list_item[index_offset]['value'] + all_items[offset][taken_idx[offset]]['value']
+                    else:
+
+                        print("ovl")
+                        index = 0
+                        while (
+                            i - j in all_items and taken_idx[i - j] + index < len(all_items[i - j]) and j < len(list_item)
+                            and set(all_items[i - j][taken_idx[i - j] + index]['item']) & set(list_item[j][0]['item'])
+                        ):
+                            index += 1
+                        print("index",index)
+                        if i - j in all_items and taken_idx[i - j] + index < len(all_items[i - j]) and j < len(list_item):
+                            total[j]['value'] = (
+                                list_item[j][0]['value'] + all_items[i - j][taken_idx[i - j] + index]['value']
                             )
-                            total[j + (0 if offset == i - j else range_j)]['item'] = (
-                                list_item[index_offset]['item'] + all_items[offset][taken_idx[offset]]['item']
+                            total[j]['item'] = (
+                                list_item[j][0]['item'] + all_items[i - j][taken_idx[i - j] + index]['item']
                             )
-                            total[j + (0 if offset == i - j else range_j)]['taken_index'] = taken_idx[:]
-                            total[j + (0 if offset == i - j else range_j)]['taken_index'][offset] += 1
-
-                        else:
-                            index = 0
-                            while (
-                                offset in all_items and taken_idx[offset] + index < len(all_items[offset])
-                                and set(all_items[offset][taken_idx[offset] + index]['item']) & set(list_item[index_offset]['item'])
-                            ):
-                                index += 1
-
-                            if offset in all_items and taken_idx[offset] + index < len(all_items[offset]):
-                                total[j + (0 if offset == i - j else range_j)]['value'] = (
-                                    list_item[index_offset]['value'] + all_items[offset][taken_idx[offset] + index]['value']
-                                )
-                                total[j + (0 if offset == i - j else range_j)]['item'] = (
-                                    list_item[index_offset]['item'] + all_items[offset][taken_idx[offset] + index]['item']
-                                )
-                                total[j + (0 if offset == i - j else range_j)]['taken_index'] = taken_idx[:]
-                                total[j + (0 if offset == i - j else range_j)]['taken_index'][offset] += index
+                            total[j]['taken_index'] = taken_idx[:]
+                            total[j]['taken_index'][i - j] += index
+                            print("overlap_list_item", list_item[j][0]['item'], "all", all_items[i - j][taken_idx[i - j] + index]['item'])
+                        m = 1
+                        
+                        while (
+                            i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j])
+                            and set(all_items[i - j][taken_idx[i - j]]['item']) & set(list_item[j][m]['item'])
+                        ):
+                            m+=1
+                        print("m",m)
+                        if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j]):
+                            print("item",list_item[j][m])
+                            total[j + i]['value'] = (
+                                list_item[j][m]['value'] + all_items[i - j][taken_idx[i - j]]['value']
+                            )
+                            total[j + i]['item'] = (
+                                list_item[j][m]['item'] + all_items[i - j][taken_idx[i - j]]['item']
+                            )
+                            total[j + i]['taken_index'] = taken_idx[:]
+                            total[j + i]['taken_index'][i - j] += 1
+                            print("overlap_list_item_2", list_item[j][m]['item'], "all", all_items[i - j][taken_idx[i - j]]['item'])
+                            
 
         filtered_totals = [(index, t) for index, t in enumerate(total) if t['value'] >= a]
         if filtered_totals:
             min_index = min(filtered_totals, key=lambda x: x[1]['value'])[0]
             return total[min_index]['item'], a - total[min_index]['value']
 
-        max_index = max(enumerate(total), key=lambda x: x[1]['value'])[0]
-        print("total",total[max_index])
-        list_item.append(total[max_index])
+        sorted_total = sorted(
+            [x for x in total if x['value'] > 0],  # Lọc phần tử có value > 0
+            key=lambda x: x['value'], 
+            reverse=True  # Sắp xếp giảm dần
+        )
+        print("all", sorted_total)
+        print("total",sorted_total[0] )
+        list_item.append(sorted_total)
 
     return [], 0  
 class AccentTemplate(ExplanationAlgorithmTemplate):
