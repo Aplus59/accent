@@ -37,8 +37,7 @@ def min_items_greater_than_a(sum_infl, a):
         print("index",i)
         for j in range(1,i+1):
             print("go go", i - j, j)
-            if j  < len(list_item) - 1 and len(list_item[j]) > 0:
-                print("list,",list_item[j])
+            if j  < len(list_item) and len(list_item[j]) > 0:
                 taken_idx = list_item[j][0]['taken_index']
                 if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) :
                     keys = all_items[i - j][taken_idx[i - j]]['item']
@@ -106,6 +105,7 @@ def min_items_greater_than_a(sum_infl, a):
             reverse=True  # Sắp xếp giảm dần
         )
         print("all", sorted_total)
+        
         list_item.append(sorted_total)
 
     return [], 0  
@@ -165,4 +165,3 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         else:
             print(f'cannot replace {repl}')
             return None, 1e9
-    
