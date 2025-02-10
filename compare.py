@@ -6,6 +6,7 @@ import pandas as pd
 from scipy.stats import ttest_rel
 from statsmodels.stats.contingency_tables import mcnemar
 from commons.handle_causal import find_causal,find_child
+from NCF.src.scripts.load_movielens import load_movielens
 
 
 def get_success(file):
@@ -65,6 +66,12 @@ def get_causal(file, causal_tree):
 
     for id, row in data.iterrows():
         user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
+        batch_size = 1246
+        path = r"C:\Users\admin\Desktop\XAI\pj_accent\accent\NCF\data"
+        data_sets = load_movielens(path, batch=batch_size, use_recs=True)
+        u_indices = np.where(data_sets.train.x[:, 0] == user_id)[0] # tìm hàng các item người dùng đã tương tác ở tập train . 
+        visited = [int(data_sets.train.x[i, 1]) for i in u_indices]
+
         if not isinstance(counterfactual, str) or not isinstance(row['actual_scores_avg'], str):
             continue
         topk = literal_eval(topk)
@@ -72,11 +79,11 @@ def get_causal(file, causal_tree):
         counterfactual = literal_eval(counterfactual)
 
         # Kiểm tra điều kiện nhân quả cho counterfactual
-        if satisfies_causal_conditions(counterfactual, causal_tree):
+        if satisfies_causal_conditions(counterfactual, causal_tree, visited):
             res[id] = True
 
     return res
-def satisfies_causal_conditions(counterfactual, causal_tree):
+def satisfies_causal_conditions(counterfactual, causal_tree, visited):
     """
     Kiểm tra điều kiện nhân quả.
     Args:
@@ -93,7 +100,7 @@ def satisfies_causal_conditions(counterfactual, causal_tree):
         if descendants is not None:
             for descendant in descendants:
                 # Nếu hậu duệ của item bị bỏ mà item đó không có trong counterfactual, thì vi phạm nhân quả
-                if descendant not in counterfactual:
+                if (descendant not in counterfactual) and (descendant in visited):
                     return False
     return True
 
