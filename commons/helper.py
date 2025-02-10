@@ -297,8 +297,7 @@ def evaluate_files(parse_args, ks):
         for id, row in data.iterrows():
             user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
             batch_size = 1246
-            path1 = os.path.normpath(os.path.join(os.path.dirname(__file__), '../NCF/data'))
-            print("path1",path1)
+            path = os.path.normpath(os.path.join(os.path.dirname(__file__), '../NCF/data'))
             data_sets = load_movielens(path, batch=batch_size, use_recs=True)
             u_indices = np.where(data_sets.train.x[:, 0] == user_id)[0] # tìm hàng các item người dùng đã tương tác ở tập train . 
             visited = [int(data_sets.train.x[i, 1]) for i in u_indices]
