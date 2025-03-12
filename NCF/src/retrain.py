@@ -24,7 +24,7 @@ def retrain(algo, ks):
     inputs = pd.concat(inputs, ignore_index=True)
     print(inputs)
 
-    home_dir = str(Path.home()) + '/pretrain-ncf'
+    home_dir = '/media02/lhbac17/pretrain-ncf'
     args = parse_args()
     np.random.seed(1802)
 

@@ -24,7 +24,7 @@ def retrain(ks):
 	inputs = pd.concat(inputs, ignore_index=True)
 	print(inputs)
 
-	home_dir = str(Path.home()) + '/pretrain-rcf-counterfactual'
+	home_dir = ' /media02/lhbac17/pretrain-rcf-counterfactual'
 	np.random.seed(1802)
 	seeds = np.random.randint(1000, 10000, 5)
 	seeds[0] = 2512
