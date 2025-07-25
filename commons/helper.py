@@ -5,6 +5,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from commons.handle_causal import find_causal,find_child
+from NCF.src.helper import get_model
 from NCF.src.scripts.load_movielens import load_movielens
 
 from commons.handle_causal import find_causal,find_child

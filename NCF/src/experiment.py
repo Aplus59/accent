@@ -15,9 +15,9 @@ def main():
     """
     args = parse_args()
     ks = [5,10,20]
-    # generate_cf(args.algo,ks)
-    # retrain(args.algo, ks)
-    # get_new_scores(args.algo, ks)
+    generate_cf(args.algo,ks)
+    retrain(args.algo, ks)
+    get_new_scores(args.algo, ks)
     evaluate_files(parse_args, ks)
 
 
