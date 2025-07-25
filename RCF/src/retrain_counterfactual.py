@@ -24,7 +24,8 @@ def retrain(ks):
 	inputs = pd.concat(inputs, ignore_index=True)
 	print(inputs)
 
-	home_dir = ' /media02/lhbac17/pretrain-rcf-counterfactual'
+	home_dir = str(Path.home()) + '/pretrain-rcf-counterfactual'
+	print(home_dir)
 	np.random.seed(1802)
 	seeds = np.random.randint(1000, 10000, 5)
 	seeds[0] = 2512
@@ -40,6 +41,9 @@ def retrain(ks):
 
 		for i, seed in enumerate(seeds):
 			path = prepare_path(home_dir, user_id, counterfactual, seed)
+			if path is None:
+				continue
+			Path(path).mkdir(parents=True, exist_ok=True)
 			model = get_new_RCF_model(data, args, save_file=path + f'ml1M_{args.hidden_factor}')
 			print('begin retraining', idx, user_id, item_id, topk, counterfactual, predicted_scores, replacement, i, seed)
 			begin = time()
