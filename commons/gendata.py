@@ -186,7 +186,7 @@ import json
 import csv
 def write_data_to_excel(n=75, output_dir="op"):
     os.makedirs(output_dir, exist_ok=True)  # Tạo thư mục nếu chưa có
-    for o in range(12,15):
+    for o in range(1,15):
         records = []  # Danh sách để lưu tất cả dữ liệu trước khi ghi vào file Excel
         for k in range(0,n):
             for m in range(40):
