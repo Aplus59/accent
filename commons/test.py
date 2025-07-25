@@ -12,99 +12,168 @@ gap_infl = [12, 2, 35, 4, 52, 16, 27, 4, 9, 6, 15, 12, 7, 14, 15, 6, 27, 8, 19, 
 #            2, 1, 7, 6, 4, 2, 27, 2, 2, 3, 1, 5, 1, 3, 6, 3, 3, 
 #            1, 3, 4, 5, 4, 7, 4, 4, 4, 4]
 
-score_gap = 100  # Giả sử chênh lệch điểm số ban đầu
 
 # Đoạn mã tiếp theo bạn có thể chạy sau khi đã tạo dữ liệu giả
 from handle_causal import find_causal, find_child
 from anytree import Node, RenderTree, find
 
 def select_optimal_pairs(sum_infl, score_gap):
-	# Tìm tổng lớn nhất của item[1] để giới hạn mảng dp
-	max_value = sum(item[1] for item in sum_infl)
+    dp = {0: (0, [])}  # Khởi tạo DP với giá trị 0
+    
+    for keys, value in sum_infl:
+        current_dp = list(dp.items())
+        for v, (count, combination) in current_dp:
+            if set(keys) & set(combination):  # Tránh trùng lặp phần tử
+                continue
+            new_value = v + value
+            new_count = count + len(keys)
+            
+            # Cập nhật nếu chưa có hoặc có tổ hợp ít phần tử hơn
+            if new_value not in dp or new_count < dp[new_value][0]:
+                dp[new_value] = (new_count, combination + keys)
+            elif new_count == dp[new_value][0] and new_value > v:
+                dp[new_value] = (new_count, combination + keys)
+    
+    # Tìm giá trị tốt nhất lớn hơn score_gap
+    best_v, best_combination = None, None
+    for v, (count, combination) in dp.items():
+        if v > score_gap:
+            if best_v is None or count < dp[best_v][0] or (count == dp[best_v][0] and v < best_v):
+                best_v, best_combination = v, combination
 
-	# Bảng DP: dp[v] = (tổng độ dài nhỏ nhất, tổ hợp phần tử tốt nhất)
-    # Ví dụ: dp[12][0] = 1 (số lượng item ít nhất)
-    #       dp[12][1] = [0] (tổ hợp có số item ứng với dp[12][0])
-	dp = [(float('inf'), []) for _ in range(max_value + 1)]
-	# Tổng giá trị bằng 0 thì không cần phần tử nào
-	dp[0] = (0, []) 
+    if best_v is None:
+        return [], 0
+    return best_combination, score_gap - best_v
 
-	# Duyệt qua từng phần tử trong sum_infl
-	for i, (keys, value) in enumerate(sum_infl):
-		# Duyệt ngược để tránh ghi đè
-		for v in range(max_value, value - 1, -1):
-			if dp[v - value][0] + len(keys) < dp[v][0]:
-				dp[v] = (
-					# Cập nhật tổng độ dài nhỏ nhất
-					dp[v - value][0] + len(keys), 
-					# Cập nhật tổ hợp phần tử
-					dp[v - value][1] + [i]        
-				)
 
-	# Tìm giá trị v lớn hơn score_gap với hiệu âm gần nhất
-	best_v = -1
-	# Chỉ xét v > score_gap
-	for v in range(score_gap + 1, max_value + 1): 
-		if dp[v][0] != float('inf'):
-			if best_v == -1 or (v < best_v):
-				best_v = v
+# Sample dataset
 
-	if best_v == -1:
-		return [], 0 
-
-	# Lấy tổ hợp tốt nhất từ dp
-	selected = [sum_infl[i] for i in dp[best_v][1]]
-	return selected, score_gap - best_v
-
-causal_tree = find_causal()
-
-# for pre, fill, node in RenderTree(causal_tree):
-#         print(f"{pre}{node.name}")
-
-print("list",visited)
-causal_list = []
-for id in visited:
-    children = find_child(causal_tree,f'{id}')
-    if len(children) != 0:
-        print(children)
-        causal_list.append([id] + [int(child) for child in children if int(child) in visited])
-        print('causal _in',causal_list)
-    else:
-        causal_list.append(id)
-print('causal',causal_list)
-
-index_causal_list = []
-for item in causal_list:
-    if isinstance(item, list):  # Nếu item là một danh sách con
-        sub_index = [visited.index(sub_item) for sub_item in item]  # Tìm chỉ số của các phần tử con
-        index_causal_list.append(sub_index)
-    else:  # Nếu item là một phần tử đơn
-        index_causal_list.append(visited.index(item))
-print('index',index_causal_list)
+from collections import deque
+import heapq
 
 # Kết quả sẽ có index_causal_list chứa các chỉ số của causal_list trong visited
 
 # Tính toán ảnh hưởng với cấu trúc nhân quả
-sum_infl = []
-for idx_group in index_causal_list:
-    if isinstance(idx_group, list):
-        # Tổng ảnh hưởng trong nhóm nhân quả
-        group_infl = sum(gap_infl[idx] for idx in idx_group)
-        if group_infl > 0:
-            sum_infl.append((idx_group, group_infl))
-    else:
-        if gap_infl[idx_group] > 0:
-            sum_infl.append(([idx_group], gap_infl[idx_group]))
+def find_counterfactual_set(sum_infl, a):
+    # Step 1: Create a dictionary to group items by weight (length of list)
+    all_items = {}
+    for list_item, value in sum_infl:
+        weight = len(list_item)
+        if weight not in all_items:
+            all_items[weight] = []
+        all_items[weight].append({'item': list_item, 'value': value})
 
-print('sum_infl',sum_infl)
+    # Sort each group by descending value
+    for weight in all_items:
+        all_items[weight].sort(key=lambda x: x['value'], reverse=True)
 
-#sum_infl [([0], 12), ([1], 2), ([2], 35), ([3], 4), ([4], 52), ([5], 16), ([6], 27), ([7], 4), ([8], 9), ([9, 31, 34], 126), ([10], 15), ([11], 12), ([12, 7], 11), ([13], 14), ([14], 15), ([15], 6), ([16], 27), ([17], 8), ([18], 19), ([19], 20), ([20], 2), ([21], 1), ([22], 7), ([23], 60), ([24], 45), ([25], 26), ([26], 27), ([27], 2), ([28], 29), ([29], 33), ([30], 13), ([31, 34], 120), ([32], 13), ([33], 3), ([34], 61), ([35], 36), ([36], 37), ([37], 18), ([38], 39), ([39], 40), ([40], 5), ([41], 42), ([42], 78), ([43], 44), ([44], 48), ([45], 46), ([46], 47)]
+
+    
+    list_item = [[{'item': [],'value': 0,'taken_index': [0] * len(sum_infl)}]]  # Stores the highest odd-summed subset
+    taken_index = [0] * len(sum_infl)
+    taken_index[1] = 1
+    list_item.append([{'item': all_items[1][0]['item'],'value': all_items[1][0]['value'],'taken_index': taken_index}])  # Stores the highest odd-summed subset
+    
+    if all_items[1][0]['value'] >= a:
+        return  all_items[1][0]['item'], a - all_items[1][0]['value']
+    print("list_item", list_item[0])
+    
+    for i in range(2, len(sum_infl) + 1):
+        total = [{'value': 0, 'item': [],'taken_index':[0] * (len(sum_infl) + 2)} for _ in range(i *2)]
+        for j in range(0,i):
+            print("go go", i - j, j)
+            if j  < len(list_item) and len(list_item[j]) > 0:
+                taken_idx = list_item[j][0]['taken_index']
+                if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]):
+                    print("he1")
+                    keys = all_items[i - j][taken_idx[i - j]]['item']
+                    overlap_items = set(keys) & set(list_item[j][0]['item'])
+                    if not overlap_items:
+                        total[j]['value'] = (
+                            list_item[j][0]['value'] + all_items[i - j][taken_idx[i - j]]['value']
+                        )
+                        total[j]['item'] = (
+                            list_item[j][0]['item'] + all_items[i - j][taken_idx[i - j]]['item']
+                        )
+                        total[j]['taken_index'] = taken_idx[:]
+                        total[j]['taken_index'][i - j] += 1
+                        print("not_overlap_list_item", list_item[j][0]['item'], "all", all_items[i - j][taken_idx[i - j]]['item'])
+
+                    else:
+                        print("ovl")
+                        index = 0
+                        while (
+                            i - j in all_items and taken_idx[i - j] + index < len(all_items[i - j]) and j < len(list_item)
+                            and set(all_items[i - j][taken_idx[i - j] + index]['item']) & set(list_item[j][0]['item'])
+                        ):
+                            index += 1
+                        print("index",index)
+                        if i - j in all_items and taken_idx[i - j] + index < len(all_items[i - j]) and j < len(list_item):
+                            total[j]['value'] = (
+                                list_item[j][0]['value'] + all_items[i - j][taken_idx[i - j] + index]['value']
+                            )
+                            total[j]['item'] = (
+                                list_item[j][0]['item'] + all_items[i - j][taken_idx[i - j] + index]['item']
+                            )
+                            total[j]['taken_index'] = taken_idx[:]
+                            total[j]['taken_index'][i - j] += index
+                            print("overlap_list_item", list_item[j][0]['item'], "all", all_items[i - j][taken_idx[i - j] + index]['item'])
+                        m = 1
+                        
+                        while (
+                            i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j])
+                            and set(all_items[i - j][taken_idx[i - j]]['item']) & set(list_item[j][m]['item'])
+                        ):
+                            m+=1
+                        print("m",m)
+                        if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j]):
+                            print("item",list_item[j][m])
+                            total[j + i]['value'] = (
+                                list_item[j][m]['value'] + all_items[i - j][taken_idx[i - j]]['value']
+                            )
+                            total[j + i]['item'] = (
+                                list_item[j][m]['item'] + all_items[i - j][taken_idx[i - j]]['item']
+                            )
+                            total[j + i]['taken_index'] = taken_idx[:]
+                            total[j + i]['taken_index'][i - j] += 1
+                            print("overlap_list_item_2", list_item[j][m]['item'], "all", all_items[i - j][taken_idx[i - j]]['item'])
+                            
+
+        filtered_totals = [(index, t) for index, t in enumerate(total) if t['value'] > a]
+        if filtered_totals:
+            min_index = min(filtered_totals, key=lambda x: x[1]['value'])[0]
+            return total[min_index]['item'], a - total[min_index]['value']
+
+        sorted_total = sorted(
+            [x for x in total if x['value'] > 0],  # Lọc phần tử có value > 0
+            key=lambda x: x['value'], 
+            reverse=True  # Sắp xếp giảm dần
+        )
+        print("all", sorted_total)
+        
+        list_item.append(sorted_total)
+    return [], 0  
+
+
+# sum_infl = [([0], 12), ([1], 2), ([2], 35), ([3], 4), ([4], 52), ([5], 16), ([6], 27), ([7], 4), ([8], 9), ([9, 31, 34], 126), ([10], 15), ([11], 12), ([12, 7], 11), ([13], 14), ([14], 15), ([15], 6), ([16], 27), ([17], 8), ([18], 19), ([19], 20), ([20], 2), ([21], 1), ([22], 7), ([23], 60), ([24], 45), ([25], 26), ([26], 27), ([27], 2), ([28], 29), ([29], 33), ([30], 13), ([31, 34], 120), ([32], 13), ([33], 3), ([34], 61), ([35], 36), ([36], 37), ([37], 18), ([38], 39), ([39], 40), ([40], 5), ([41], 42), ([42], 78), ([43], 44), ([44], 48), ([45], 46), ([46], 47)]
+# sum_infl = [([0], 0.12), ([1], 0.012), ([2], 0.35), ([3], 0.12), ([4], 0.2), ([5], 0.0012), ([6], 0.312), ([7], 0.126), ([8], 9), ([9, 31, 34], 1), ([10], 15), ([11], 12), ([12, 7], 11), ([13], 14), ([14], 15), ([15], 6), ([16], 27), ([17], 8), ([18], 19)]
+# sum_infl = [([0], 0.9), ([1], 0.012), ([2], 1.35), ([3,0], 1.0), ([4], 0.2), ([5,30], 1.9), ([6], 0.312), ([7], 0.126), ([8,0], 0.9), ([9, 31, 34], 0.1), ([10], 0.2), ([11], 0.012), ([12, 7], 0.0011), ([13], 0.014), ([14], 0.15), ([15], 0.0006), ([16], 0.027), ([17], 0.08), ([18], 0.0019)]
+score_gap = 11.725  # Giả sử chênh lệch điểm số ban đầu
+
+# sum_infl = [([0], 0.2), ([2], 0.02), ([3], 0.02), ([4], 0.02), ([5], 0.0012), ([6], 0.00312), ([7], 0.0126), ([8], 0.09), ([51, 34], 0.005),([34], 0.001),([21,22,23],0.3),([22,23],0.1),([23],0.01),([25,26,27,28,29,30,31],0.7),([26,27,28,29,30,31],0.5),([27,28,29,30,31],0.3),([28,29,30,31],0.2),([29,30,31],0.1),
+#          ([9, 51, 34], 0.01), ([10], 0.015), ([11], 0.012), ([50], 0.2), ([14,50], 0.4), ([15], 0.05), ([16,17,1,0],1.6),([17,1,0],1.3),([1,0],1),([20,21,22,23],0.5),([24,25,26,27,28,29,30,31],1),([30,31],0.05),([31],0.01)]
+
+sum_infl= [([0], -0.0005800087459988464), ([1], 0.0001614096471438636), ([2], 0.007059669623461796), ([3], 0.002821319798012572), ([4], 0.0010212075580996495), 
+           ([5, 104], 0.00394048433181091), ([6], -0.007538670355043414), ([7], -0.0007930733343668016), ([8], -0.02345220380093036), ([9], 0.003889469723818307), ([10], 0.0056971229996288855), ([11], -0.022847469114553504), ([12], -0.011892610794377078), ([13], -0.02195876059021965), ([14], 0.03043686301890261), ([15], -0.00038051535902065316), ([16], -0.002793781468676463), ([17], 0.00464703723367951), ([18], -0.00997193847393966), ([19], -0.0010525335755635495), ([20], -0.000579201820541976), ([21], 0.003926382135874944), ([22], -0.0013462021547410398), ([23], -0.014989568151879684), ([24], 0.017102338010376077), ([25], -0.002151588929358567), ([26], -0.0001016007007180169), ([27], 0.012383673879912366), ([28], -0.0018530540783459233), ([29], -0.0028229662250000044), ([30], 0.05146968560619727), ([31], -0.0006936398313814882), ([32], -0.015192131273637173), ([33], 0.0009193144751098708), ([34], -0.01735713996690929), ([35], -0.004285289203408211), ([36], 0.003786164860883009), ([37], -0.0024249776829349426), ([38], -0.0041882706446946735), ([39], 0.015661299234614998), ([40], 0.004061613368195584), ([41], 0.0004029413855243533), ([42], -0.0003857403659949347), ([43], 0.00520974164120486), ([44], -0.0015832646952542492), ([45], -0.008841796645202562), ([46], 0.0032641250186233517), ([47], -0.006491870104309139), ([48], -0.009594251077131405), ([49], -0.005321342181556929), ([50], -0.0014140391685021352), ([51], 0.004270796006235688), ([52], -0.0013875234538392421), ([53], 9.182075984224137e-05), ([54], -0.01728590847028484), ([55], -0.022352541847689523), ([56], 0.0026720112370947884), ([57], -0.00908684048178469), ([58], 0.0023977430968883297), ([59], 0.00445687231469937), ([60, 178], -0.008469379015240454), ([61], 0.015031784441976712), ([62], -0.0038771514747408566), ([63], 0.03661027810104665), ([64], -0.009773661591417068), ([65], 0.005869687220312896), ([66], 0.0038786149450073686), ([67], -0.011322193281950362), ([68], -0.041344984616784854), ([69], -0.002737866172350669), ([70], 0.06128032362343344), ([71], 0.005039823775508178), ([72], 0.02977835275202527), ([73], 0.020294843157919143), ([74], -0.008641148294517441), ([75], -0.015246815854492026), ([76], -0.008740442238308542), ([77], 0.00187027452889524), ([78], 0.019576918920642374), ([79], -0.004947775000101097), ([80, 102], 0.0009725431342946003), ([81], 0.0010431399149189026), ([82], -0.06794687881346849), ([83], -0.0028075367665525656), ([84], 0.05190152203492497), ([85], -0.010078621689503704), ([86], -0.012099214189468278), ([87], 0.007404806489515338), ([88], -0.04542670985845344), ([89, 107], -0.001885985086595191), ([90], 0.014312330624853363), ([91], 0.005528225203274447), ([92], -0.002955975730100989), ([93], 0.005322861178034352), ([94], -0.027055540821356916), ([95], 0.007210742681209722), ([96], -0.0055196300930329244), ([97], 0.008550945207209223), ([98], -0.005215717536744779), ([99], 0.00044705223441472274), ([100, 152], -0.009288869938039125), ([101], 0.01069343833065915), ([102], 0.0007163267480975516), ([103], -0.0023450597039011336), ([104], -0.016969559085989107), ([105], -0.0019707179445355976), ([106], -0.0024880621070368135), ([107], -0.0015133067480631993), ([108], 0.0016125070071828158), ([109], -0.0028245887573730326), ([110], 0.008748925714617443), ([111], 0.0004449659945393548), ([112], 0.0002550106921504324), ([113], 4.95605489477207e-05), ([114], -0.029480931139089495), ([115], 0.014763695289851428), ([116], -0.0014406566998020724), ([117], -0.021498746433313246), ([118], -0.01497763432306958), ([119], 0.008614817743682938), ([120], 0.010269297492695945), ([121], 0.00010904891746716077), ([122], 0.001095393908572043), ([123], 0.00011339218484832233), ([124], -0.00011787826612138716), ([125], 0.03565905995713599), ([126], -0.004105963536178496), ([127], -0.0004379837930706263), ([128], 0.02750235461170631), ([129], 0.0016367414148834459), ([130], 0.005754753583017301), ([131], 0.004144133405663269), ([132], -0.004369217488854783), ([133], 0.007320253336518459), ([134], -0.006906826002948736), ([135], 0.006652747841738771), ([136], 0.005684594710039267), ([137], 0.009283705408506784), ([138], 0.007207233905350475), ([139], 0.005712842175338031), ([140], -0.018220166141876305), ([141], -0.004159484730127594), ([142], 0.0007407178754547305), ([143], -0.002840921496215421), ([144], -0.017687291525796733), ([145], 0.010718238213385078), ([146], -0.026861925750792014), ([147], 0.002669541789671828), ([148], 5.491907736872837e-05), ([149], 0.02250862757718318), ([150], 0.00010532289996161926), ([151], 0.002146576265471091), ([152], -0.010215973852705677), ([153], -0.02159838006606564), ([154], -0.0002664536285715748), ([155, 151], -0.00298468090939047), ([156], -0.0003295626545307159), ([157], 0.00434254960101319), ([158], 0.0042923731824350995), ([159], -0.015334635072038473), ([160], 0.009602850508138359), ([161], -0.003270647143527894), ([162], 0.00603596609505737), ([163], -0.01871575455381434), ([164], 0.00926494269446404), ([165], 0.014788560116587196), ([166], 0.009718635760144595), ([167], 0.013739975666255958), ([168], -0.00034247630440477394), ([169], -0.006313279831610456), ([170], 0.011587073654074437), ([171], 0.01545591205938317), ([172], 0.006824207945442654), ([173], 0.0015706918565851226), ([174], -0.006648197044398331), ([175, 185, 155, 151], -0.05884159502296188), ([176], 0.006685877182391888), ([177], -0.00421142688055603), ([178], -0.010034214782377746), ([179], -0.03668216802931126), ([180], -0.009257404017316916), ([181], 0.011048443646763379), ([182], -0.01129445300960814), ([183], 0.0001468710541118589), ([184, 60, 178], -0.013987430186237073), ([185, 155, 151], -0.01990317964470238), ([186], -0.0006877002273827401), ([187], -0.00013887450092407456), ([188], -0.00026559357367128555), ([189], 0.011978784109527648), ([190], 0.008420031982708463), ([191], -0.03605188267411871), ([192], 0.027907648826464064), ([193], 0.003952208931845258), ([194], 0.0107407629692939), ([195], -0.0025543085184226554), ([196], 0.02359404787129197), ([197], -0.002990359744236445), ([198], 0.005540570685237587), ([199], 0.0026228086197332585), ([200], 0.0031284589529992357), ([201], -0.0034311374923939953), ([202], -0.03856618988770678), ([203], 0.0036313462404525755), ([204], -0.004893460857343348), ([205], 0.02223625356207939), ([206], -0.0025461673527585184), ([207], -0.001872018635042754), ([208], -0.00066240648354689), ([209], -0.008363764260996793), ([210], -0.00798250060928916), ([211], -0.006346465088201407), ([212], 0.01171548770826193), ([213], -0.00044095404914965344), ([214], -0.0006818418775187446), ([215], 0.010430035041846272), ([216], 9.443696954483075e-05), ([217], -0.0041361813482462964)]
+
 
 removed_items = set()
+removed_items = select_optimal_pairs(sum_infl, score_gap)
+removed_items2, score_gap2 = find_counterfactual_set(sum_infl, score_gap)
 
-removed_items, score_gap = select_optimal_pairs(sum_infl, score_gap)
+print("Removed1:", removed_items)
+# print("Removed2:", removed_items1)
+print("Removed3:", removed_items2)
 
-if score_gap < 0:
-    print(f'Replace: {removed_items}')
-else:
-    print(f'Cannot replace')
+# Removed1: [8, 15, 16, 17, 1, 0]
+# Removed3: [0, 14, 50, 8, 15, 24, 25, 26, 27, 28, 29, 30, 31]

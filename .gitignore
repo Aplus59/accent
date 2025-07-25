@@ -7,3 +7,5 @@
 checkpoint
 .DS_Store
 *.pyc
+venv1/
+venv39/

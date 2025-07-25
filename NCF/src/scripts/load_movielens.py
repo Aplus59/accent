@@ -6,7 +6,6 @@ from NCF.src.influence.datasets import Datasets
 
 
 def load_movielens(train_dir, batch, use_recs=False):
-
   train = np.loadtxt("%s/movielens_train.tsv"%train_dir, delimiter='\t')
   valid = np.loadtxt("%s/movielens_train.tsv"%train_dir, delimiter='\t')
   if use_recs:

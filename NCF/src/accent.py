@@ -57,6 +57,7 @@ class Accent(AccentTemplate):
 
         ret = []  # lưu kết quả lần thay thế.
         for i in range(1, ks[-1]):
+            print("user",user)
             tmp_res, tmp_gap = Accent.try_replace(topk[i], scores[topk[0]] - scores[topk[i]], influences[0] - influences[i],visited)
             # thử thay thế một phần tử , trả về các item cần remove và gap
             if tmp_res is not None and (
@@ -70,6 +71,8 @@ class Accent(AccentTemplate):
                 if res is not None: # nếu kiếm đc thay thế hợp lệ
                     predicted_scores = np.array([scores[item] for item in topk[:(i + 1)]])# lưu điểm số các item trong top k hiện tại
                     for item in res:
+                        print("res", item)
+                        print("inf",influences[:(i + 1), item])
                         predicted_scores -= influences[:(i + 1), item] # chọn list các phần từ thứ 2 với độ dại từ 0 -> i + 1 vì có list k, mỗi lần chọn thằng tốt nhất trong k đó, nên chỉ cần predict score khoảng đó th.
                         #vd:predicted_scores = np.array([10, 20, 30, 40, 50, 60, 70])
                         #influences = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15]]):
@@ -77,6 +80,7 @@ class Accent(AccentTemplate):
                         #predicted_scores = np.array([10-2, 20-5, 30-8, 40, 50])
 
                     # điểm số của các thằng top k sau khi bỏ z. 
+                    print("pedicted_score",predicted_scores[0],predicted_scores[best_i],topk[i],best_i)
                     assert predicted_scores[0] < predicted_scores[best_i]
                     # sau khi trừ hết thì thằng best_i phải có ảnh hưởng , scores cao hơn thằng 0
                     assert abs(predicted_scores[0] - predicted_scores[best_i] - best_gap) < 1e-3

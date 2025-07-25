@@ -57,12 +57,10 @@ def find_causal():
         # print("\n")
     
 
-    # Hiển thị toàn bộ cây với root chung
     # print("Main Tree:")
     # for pre, fill, node in RenderTree(main_root):
     #     # Kiểm tra xem node.name có nằm trong khoảng từ 100 đến 200 không
-    #     if 100 <= int(node.name) <= 200:
-    #         print(f"{pre}{node.name}")
+    #     print(f"{pre}{node.name}")
     # print("\n")
 
     # # Tìm kiếm node trong cây

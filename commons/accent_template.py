@@ -17,18 +17,20 @@ def find_counterfactual_set(sum_infl, a):
     for weight in all_items:
         all_items[weight].sort(key=lambda x: x['value'], reverse=True)
 
-
-    
-    list_item = [[{'item': [],'value': 0,'taken_index': [0] * len(sum_infl)}]]  # Stores the highest odd-summed subset
-    taken_index = [0] * len(sum_infl)
+    list_item = [[{'item': [],'value': 0,'taken_index': [0] * (len(sum_infl) + 1)}]]  # Stores the highest odd-summed subset
+    taken_index = [0] * (len(sum_infl) + 1)
     taken_index[1] = 1
+    # Check nếu weight 1 không có item nào
+    if 1 not in all_items or not all_items[1]:
+        return [], 0  # hoặc continue nếu trong vòng lặp
+
     list_item.append([{'item': all_items[1][0]['item'],'value': all_items[1][0]['value'],'taken_index': taken_index}])  # Stores the highest odd-summed subset
     
     if all_items[1][0]['value'] > a:
         return  all_items[1][0]['item'], a - all_items[1][0]['value']
     
     for i in range(2, len(sum_infl) + 1):
-        total = [{'value': 0, 'item': [],'taken_index':[0] * (len(sum_infl) + 2)} for _ in range(i *2)]
+        total = [{'value': 0, 'item': [],'taken_index':[0] * (len(sum_infl) + 1)} for _ in range(i *2)]
         for j in range(0,i):
             if j  < len(list_item) and len(list_item[j]) > 0:
                 taken_idx = list_item[j][0]['taken_index']

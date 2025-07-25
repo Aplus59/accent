@@ -128,6 +128,8 @@ def get_model(use_recs=False):
     num_steps = args.num_steps_train
     iter_to_load = num_steps - 1
     if os.path.isfile("%s-%s.index" % (model.checkpoint_file, iter_to_load)):
+
+        print("model.checkpoint_file",model.checkpoint_file)
         print('Checkpoint found, loading...')
         model.load_checkpoint(iter_to_load=iter_to_load)
     else:
