@@ -9,7 +9,7 @@ sys.stdout.reconfigure(encoding='utf-8')
 
 # Đọc dữ liệu từ tệp
 current_dir = os.path.dirname(os.path.abspath(__file__))  
-file_path = os.path.join(current_dir, '..', 'commons', 'movies.tsv')
+file_path = os.path.join(current_dir, 'movies.tsv')
 
 def find_causal():
     movies = []
