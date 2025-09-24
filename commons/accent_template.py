@@ -4,7 +4,12 @@ import os
 import pickle
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
 from commons.handle_causal import find_causal,find_child
+
 def find_counterfactual_set(sum_infl, a):
+    # Handle empty sum_infl case
+    if not sum_infl:
+        return [], 0
+
     # Step 1: Create a dictionary to group items by weight (length of list)
     all_items = {}
     for list_item, value in sum_infl:
@@ -18,22 +23,24 @@ def find_counterfactual_set(sum_infl, a):
     for weight in all_items:
         all_items[weight].sort(key=lambda x: x['value'], reverse=True)
 
-    list_item = [[{'item': [],'value': 0,'taken_index': [0] * (len(sum_infl) + 1)}]]  # Stores the highest odd-summed subset
-    taken_index = [0] * (len(sum_infl) + 1)
-    taken_index[1] = 1
-    # Check nếu weight 1 không có item nào
-    if 1 not in all_items or not all_items[1]:
-        return [], 0  # hoặc continue nếu trong vòng lặp
+    # Initialize list_item with a dummy entry
+    list_item = [[{'item': [], 'value': 0, 'taken_index': [0] * len(sum_infl)}]]
 
-    list_item.append([{'item': all_items[1][0]['item'],'value': all_items[1][0]['value'],'taken_index': taken_index}])  # Stores the highest odd-summed subset
-    
+    # Check if weight 1 exists and is non-empty
+    if 1 not in all_items or not all_items[1]:
+        return [], 0
+
+    # Initialize taken_index for the first item
+    taken_index = [0] * len(sum_infl)
+    list_item.append([{'item': all_items[1][0]['item'], 'value': all_items[1][0]['value'], 'taken_index': taken_index}])
+
     if all_items[1][0]['value'] > a:
-        return  all_items[1][0]['item'], a - all_items[1][0]['value']
-    
+        return all_items[1][0]['item'], a - all_items[1][0]['value']
+
     for i in range(2, len(sum_infl) + 1):
-        total = [{'value': 0, 'item': [],'taken_index':[0] * (len(sum_infl) + 1)} for _ in range(i *2)]
-        for j in range(0,i):
-            if j  < len(list_item) and len(list_item[j]) > 0:
+        total = [{'value': 0, 'item': [], 'taken_index': [0] * len(sum_infl)} for _ in range(i * 2)]
+        for j in range(0, i):
+            if j < len(list_item) and len(list_item[j]) > 0:
                 taken_idx = list_item[j][0]['taken_index']
                 if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]):
                     keys = all_items[i - j][taken_idx[i - j]]['item']
@@ -47,12 +54,13 @@ def find_counterfactual_set(sum_infl, a):
                         )
                         total[j]['taken_index'] = taken_idx[:]
                         total[j]['taken_index'][i - j] += 1
-
                     else:
                         index = 0
                         while (
-                            i - j in all_items and taken_idx[i - j] + index < len(all_items[i - j]) and j < len(list_item)
-                            and set(all_items[i - j][taken_idx[i - j] + index]['item']) & set(list_item[j][0]['item'])
+                            i - j in all_items and
+                            taken_idx[i - j] + index < len(all_items[i - j]) and
+                            j < len(list_item) and
+                            set(all_items[i - j][taken_idx[i - j] + index]['item']) & set(list_item[j][0]['item'])
                         ):
                             index += 1
                         if i - j in all_items and taken_idx[i - j] + index < len(all_items[i - j]) and j < len(list_item):
@@ -65,12 +73,14 @@ def find_counterfactual_set(sum_infl, a):
                             total[j]['taken_index'] = taken_idx[:]
                             total[j]['taken_index'][i - j] += index
                         m = 1
-                        
                         while (
-                            i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j])
-                            and set(all_items[i - j][taken_idx[i - j]]['item']) & set(list_item[j][m]['item'])
+                            i - j in all_items and
+                            taken_idx[i - j] < len(all_items[i - j]) and
+                            j < len(list_item) and
+                            m < len(list_item[j]) and
+                            set(all_items[i - j][taken_idx[i - j]]['item']) & set(list_item[j][m]['item'])
                         ):
-                            m+=1
+                            m += 1
                         if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j]):
                             total[j + i]['value'] = (
                                 list_item[j][m]['value'] + all_items[i - j][taken_idx[i - j]]['value']
@@ -80,7 +90,6 @@ def find_counterfactual_set(sum_infl, a):
                             )
                             total[j + i]['taken_index'] = taken_idx[:]
                             total[j + i]['taken_index'][i - j] += 1
-                            
 
         filtered_totals = [(index, t) for index, t in enumerate(total) if t['value'] > a]
         if filtered_totals:
@@ -88,12 +97,13 @@ def find_counterfactual_set(sum_infl, a):
             return total[min_index]['item'], a - total[min_index]['value']
 
         sorted_total = sorted(
-            [x for x in total if x['value'] > 0],  # Lọc phần tử có value > 0
-            key=lambda x: x['value'], 
-            reverse=True  # Sắp xếp giảm dần
+            [x for x in total if x['value'] > 0],
+            key=lambda x: x['value'],
+            reverse=True
         )
         list_item.append(sorted_total)
-    return [], 0  
+    return [], 0
+
 class AccentTemplate(ExplanationAlgorithmTemplate):
     @staticmethod
     

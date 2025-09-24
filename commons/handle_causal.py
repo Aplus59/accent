@@ -3,6 +3,7 @@ import re
 from collections import defaultdict
 import os
 from anytree import Node, RenderTree, find
+import pickle
 
 # Thiết lập lại encoding mặc định
 sys.stdout.reconfigure(encoding='utf-8')
@@ -68,3 +69,21 @@ def find_child(main_root,name):
         print("Node not found.")
         return None
     
+def print_causal_tree(root):
+    """
+    In toàn bộ causal tree ra màn hình với cấu trúc phân cấp.
+    """
+    for pre, fill, node in RenderTree(root):
+        print(f"{pre}{node.name}")
+
+
+causal_tree_path = 'causal_tree.pkl'
+if os.path.exists(causal_tree_path):
+    with open(causal_tree_path, 'rb') as f:
+        causal_tree = pickle.load(f)
+else:
+    causal_tree = find_causal()
+    with open(causal_tree_path, 'wb') as f:
+        pickle.dump(causal_tree, f)
+
+print_causal_tree(causal_tree)
