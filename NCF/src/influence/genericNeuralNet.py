@@ -270,7 +270,6 @@ class GenericNeuralNet(object):
 
         num_examples = data_set.num_examples
         print (f'num_examples: {num_examples}, batch_size:{self.batch_size}')
-        assert num_examples % self.batch_size == 0
         num_iter = int(num_examples / self.batch_size)
 
         self.reset_datasets()
