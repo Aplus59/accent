@@ -2,80 +2,61 @@ import sys
 import re
 from collections import defaultdict
 import os
-
 from anytree import Node, RenderTree, find
+
 # Thiết lập lại encoding mặc định
 sys.stdout.reconfigure(encoding='utf-8')
 
 # Đọc dữ liệu từ tệp
-current_dir = os.path.dirname(os.path.abspath(__file__))  # Gets the directory of the script
-
-    # Set the full path to the file
-file_path = os.path.join(current_dir, '..', 'commons', 'u.item')
-
+current_dir = os.path.dirname(os.path.abspath(__file__))  
+file_path = os.path.join(current_dir, '..', 'commons', 'movies.tsv')
 
 def find_causal():
     movies = []
-    with open(file_path, encoding="ISO-8859-1") as file:
+    with open(file_path, encoding="utf-8") as file:
         for line in file:
-            parts = line.strip().split('|')  # Tách dòng theo ký tự |
-            movie_id, title, date, _, url = parts[:5]  # Lấy các trường cần thiết
-            if date:  # Kiểm tra nếu có ngày hợp lệ
-                day, month, year = date.split('-')
-            else:
-                day, month, year = "01", "Jan", "1900"  # Gán giá trị mặc định nếu thiếu ngày
-            
-            # Chuẩn hóa tên cơ sở
-            base_name = re.sub(r'\s*(\(\d{4}\)|\d{4})$', '', title).strip()
+            parts = line.strip().split("\t")
+            if len(parts) < 3:
+                continue
+            movie_id, title, genres = parts[:3]
+
+            # Tách năm từ title (ví dụ: "Toy Story (1995)")
+            year_match = re.search(r'\((\d{4})\)', title)
+            year = year_match.group(1) if year_match else "1900"
+
+            # Chuẩn hóa base_name
+            base_name = re.sub(r'\s*\(\d{4}\)$', '', title).strip()
             base_name = re.sub(r', (The|A)$', '', base_name).strip()
             base_name = base_name.split(':')[0]
             base_name = re.sub(r' (\d+|[IVXLCDM]+|3-D)$', '', base_name).strip()
-            
+
             # Thêm phim vào danh sách
-            movies.append({'id': movie_id, 'title': title, 'base_name': base_name, 'year': year, 'month': month, 'url': url})
+            movies.append({
+                'id': movie_id,
+                'title': title,
+                'base_name': base_name,
+                'year': year,
+                'genres': genres
+            })
 
     # Nhóm phim theo base_name
     groups = defaultdict(list)
     for movie in movies:
         groups[movie['base_name']].append(movie)
 
-    # Tạo root chung
-    main_root = Node("0")  # Root chung có số là 0
+    # Root chung
+    main_root = Node("0")
 
-    # Sắp xếp và tạo cây
+    # Tạo cây
     for base_name, group in groups.items():
-        # Sắp xếp theo năm, nếu bằng thì theo tháng
-        group.sort(key=lambda x: (x['year'], x['month']))
-        root = Node(f"{group[0]['id']}", parent=main_root)  # Gán root của cây con là con của main_root
+        group.sort(key=lambda x: int(x['year']))
+        root = Node(f"{group[0]['id']}", parent=main_root)
         current_node = root
         for movie in group[1:]:
             current_node = Node(f"{movie['id']}", parent=current_node)
-        
-        # print(f"Tree for {base_name}:")
-        # for pre, fill, node in RenderTree(root):
-        #     print(f"{pre}{node.name}")
-        # print("\n")
-    
-
-    # print("Main Tree:")
-    # for pre, fill, node in RenderTree(main_root):
-    #     # Kiểm tra xem node.name có nằm trong khoảng từ 100 đến 200 không
-    #     print(f"{pre}{node.name}")
-    # print("\n")
-
-    # # Tìm kiếm node trong cây
-    # target_node = find(main_root, lambda node: node.name == "234")
-
-    # # Kiểm tra và lấy các nút con của nó
-    # if target_node:
-    #     print(f"Found node: {target_node.name}")
-    #     print("Children and Descendants:")
-    #     for descendant in target_node.descendants:  # Trả về tất cả các node con, kể cả các cấp sâu hơn
-    #         print(descendant.name)
-    # else:
-    #     print("Node not found.")
 
     return main_root
+
 def find_child(main_root,name):
     target_node = find(main_root, lambda node: node.name == name)
 

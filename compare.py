@@ -66,7 +66,7 @@ def get_causal(file, causal_tree):
 
     for id, row in data.iterrows():
         user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
-        batch_size = 1246
+        batch_size = 2048
         path = r"C:\Users\admin\Desktop\XAI\pj_accent\accent\NCF\data"
         data_sets = load_movielens(path, batch=batch_size, use_recs=True)
         u_indices = np.where(data_sets.train.x[:, 0] == user_id)[0] # tìm hàng các item người dùng đã tương tác ở tập train . 

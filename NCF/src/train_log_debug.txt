@@ -1,0 +1,70 @@
+2025-09-22 12:05:10.365024: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-09-22 12:05:11.239719: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
+WARNING:tensorflow:From /home/bkhanh/.pyenv/versions/accent39/lib/python3.9/site-packages/tensorflow/python/compat/v2_compat.py:107: disable_resource_variables (from tensorflow.python.ops.variable_scope) is deprecated and will be removed in a future version.
+Instructions for updating:
+non-resource variables are not supported in the long term
+2025-09-22 12:05:12.576866: E tensorflow/compiler/xla/stream_executor/cuda/cuda_driver.cc:268] failed call to cuInit: CUDA_ERROR_NO_DEVICE: no CUDA-capable device is detected
+WARNING:tensorflow:From /home/bkhanh/khanh/accent/NCF/src/influence/genericNeuralNet.py:49: calling TruncatedNormal.__init__ (from tensorflow.python.ops.init_ops) with dtype is deprecated and will be removed in a future version.
+Instructions for updating:
+Call initializer instance with the dtype argument instead of passing it to the constructor
+WARNING:tensorflow:From /home/bkhanh/khanh/accent/NCF/src/influence/genericNeuralNet.py:432: all_variables (from tensorflow.python.ops.variables) is deprecated and will be removed after 2017-03-02.
+Instructions for updating:
+Please use tf.global_variables instead.
+2025-09-22 12:05:13.647546: I tensorflow/compiler/mlir/mlir_graph_optimization_pass.cc:375] MLIR V1 optimization pass is not enabled
+61054
+61054
+61054
+number of users: 452
+number of items: 1600
+number of training examples: 61054
+number of testing examples: 61054
+Using avextol of 1e-03
+Using damping of 1e-06
+Using embedding size of 16
+input dim for hidden layer: 32
+input dim for hidden layer: 16
+input dim for hidden layer: 24
+length of all_params: 10, which should be equal to 10
+Total number of parameters: 66353
+Model name is: movielens_NCF_explicit_damping1e-06_avextol1e-03_embed16_maxinf1_wd1e-03
+model.checkpoint_file scripts/output/movielens_NCF_explicit_damping1e-06_avextol1e-03_embed16_maxinf1_wd1e-03-checkpoint
+Checkpoint found, loading...
+Model scripts/output/movielens_NCF_explicit_damping1e-06_avextol1e-03_embed16_maxinf1_wd1e-03-checkpoint-119999 loaded. Sanity checks ---
+num_examples: 61054, batch_size:1246
+num_examples: 61054, batch_size:1246
+Loss on test idx 999: 0.15711196
+Train loss (w reg) on all data: [0.55230375]
+Train loss (w/o reg) on all data: [0.45877189]
+Test loss (w/o reg) on all data: [0.45877189]
+Train acc on all data:  [0.52526825]
+Test acc on all data:   [0.52526825]
+Norm of the mean of gradients: 0.9240163
+61054
+61054
+61054
+number of users: 452
+number of items: 1600
+number of training examples: 61054
+number of testing examples: 61054
+Using avextol of 1e-03
+Using damping of 1e-06
+Using embedding size of 16
+input dim for hidden layer: 32
+input dim for hidden layer: 16
+input dim for hidden layer: 24
+length of all_params: 10, which should be equal to 10
+Total number of parameters: 66353
+Model name is: movielens_NCF_explicit_damping1e-06_avextol1e-03_embed16_maxinf1_wd1e-03
+model.checkpoint_file scripts/output/movielens_NCF_explicit_damping1e-06_avextol1e-03_embed16_maxinf1_wd1e-03-checkpoint
+Checkpoint found, loading...
+Model scripts/output/movielens_NCF_explicit_damping1e-06_avextol1e-03_embed16_maxinf1_wd1e-03-checkpoint-119999 loaded. Sanity checks ---
+num_examples: 61054, batch_size:1246
+num_examples: 61054, batch_size:1246
+Loss on test idx 999: 0.15711196
+Train loss (w reg) on all data: [0.55230375]
+Train loss (w/o reg) on all data: [0.45877189]
+Test loss (w/o reg) on all data: [0.45877189]
+Train acc on all data:  [0.52526825]
+Test acc on all data:   [0.52526825]
+Norm of the mean of gradients: 0.9240163

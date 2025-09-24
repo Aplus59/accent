@@ -1,5 +1,6 @@
 import numpy as np
 import math
+import os
 
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
 from commons.handle_causal import find_causal,find_child
@@ -107,9 +108,17 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         Returns: if possible, return the set of items that must be removed to swap and the new score gap
                 else, None, 1e9
         """
-        causal_tree = find_causal()
+        causal_tree_path = 'causal_tree.pkl'
+        if os.path.exists(causal_tree_path):
+            import pickle
+            with open(causal_tree_path, 'rb') as f:
+                causal_tree = pickle.load(f)
+        else:
+            causal_tree = find_causal()
+            with open(causal_tree_path, 'wb') as f:
+                pickle.dump(causal_tree, f)
+
         print(f'try replace', repl, score_gap)
-        print("visited",visited)
         causal_list = []
         for id in visited:
             if id == 0:

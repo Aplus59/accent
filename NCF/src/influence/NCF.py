@@ -26,9 +26,8 @@ class NCF(GenericNeuralNet):
         self.num_items = num_items
         self.embedding_size = embedding_size
         self.weight_decay = weight_decay
-        # self.num_classes = 1
         super(NCF, self).__init__(**kwargs)
-
+        
     def get_all_params(self):
         all_params = []
         for layer in ['embedding_layer', 'h1', 'h2', 'h3']:
@@ -198,87 +197,87 @@ class NCF(GenericNeuralNet):
         # If train_idx is None then use X and Y (phantom points)
         # Need to make sure test_idx stays consistent between models
         # because mini-batching permutes dataset order
+        with tf.device('/GPU:0'):
+            if train_idx is None:
+                if (X is None) or (Y is None): raise (ValueError, 'X and Y must be specified if using phantom points.')
+                if X.shape[0] != len(Y): raise (ValueError, 'X and Y must have the same length.')
+            else:
+                if (X is not None) or (
+                        Y is not None): raise (ValueError, 'X and Y cannot be specified if train_idx is specified.')
 
-        if train_idx is None:
-            if (X is None) or (Y is None): raise (ValueError, 'X and Y must be specified if using phantom points.')
-            if X.shape[0] != len(Y): raise (ValueError, 'X and Y must have the same length.')
-        else:
-            if (X is not None) or (
-                    Y is not None): raise (ValueError, 'X and Y cannot be specified if train_idx is specified.')
+            assert len(test_indices) == 1
+            self.test_index = test_indices[0]
+            self.train_indices_of_test_case = self.get_train_indices_of_test_case(test_indices)
+            self.params_test = self.get_test_params(test_index=test_indices)
+            self.vec_to_list_test = self.get_vec_to_list_fn_test()
+            # self.logits_test = self.inference_test()
+            # self.total_loss_test, self.loss_no_reg_test, self.indiv_loss_no_reg_test = self.loss(
+            #     self.logits_test,
+            #     self.labels_placeholder)
+            #
+            # self.grad_total_loss_op_test = tf.gradients(self.total_loss_test, self.params_test)
+            # self.grad_loss_no_reg_op_test = tf.gradients(self.loss_no_reg_test, self.params_test)
+            self.grad_total_loss_op_test = self.get_test_grad(self.grad_total_loss_op)
+            self.grad_loss_no_reg_op_test = self.get_test_grad(self.grad_loss_no_reg_op)
+            self.grad_loss_r_test = self.get_test_grad(self.grad_loss_r)
 
-        assert len(test_indices) == 1
-        self.test_index = test_indices[0]
-        self.train_indices_of_test_case = self.get_train_indices_of_test_case(test_indices)
-        self.params_test = self.get_test_params(test_index=test_indices)
-        self.vec_to_list_test = self.get_vec_to_list_fn_test()
-        # self.logits_test = self.inference_test()
-        # self.total_loss_test, self.loss_no_reg_test, self.indiv_loss_no_reg_test = self.loss(
-        #     self.logits_test,
-        #     self.labels_placeholder)
-        #
-        # self.grad_total_loss_op_test = tf.gradients(self.total_loss_test, self.params_test)
-        # self.grad_loss_no_reg_op_test = tf.gradients(self.loss_no_reg_test, self.params_test)
-        self.grad_total_loss_op_test = self.get_test_grad(self.grad_total_loss_op)
-        self.grad_loss_no_reg_op_test = self.get_test_grad(self.grad_loss_no_reg_op)
-        self.grad_loss_r_test = self.get_test_grad(self.grad_loss_r)
+            self.v_placeholder_test = [tf.placeholder(tf.float32, shape=a.get_shape()) for a in self.params_test]
+            self.hessian_vector_test = self.hessian_vector_product_test(self.total_loss, self.params,
+                                                                        self.v_placeholder_test)
 
-        self.v_placeholder_test = [tf.placeholder(tf.float32, shape=a.get_shape()) for a in self.params_test]
-        self.hessian_vector_test = self.hessian_vector_product_test(self.total_loss, self.params,
-                                                                    self.v_placeholder_test)
+            # test_grad_loss_no_reg_val = self.get_test_grad_loss_no_reg_val(test_indices, loss_type=loss_type)
+            test_grad_loss_r = self.get_r_grad_loss(test_indices, loss_type=loss_type)
 
-        # test_grad_loss_no_reg_val = self.get_test_grad_loss_no_reg_val(test_indices, loss_type=loss_type)
-        test_grad_loss_r = self.get_r_grad_loss(test_indices, loss_type=loss_type)
+            # print("Shape of test gradient: %s" % test_grad_loss_no_reg_val.shape)
+            print('Norm of test gradient: %s' % np.linalg.norm(np.concatenate(test_grad_loss_r)))
 
-        # print("Shape of test gradient: %s" % test_grad_loss_no_reg_val.shape)
-        print('Norm of test gradient: %s' % np.linalg.norm(np.concatenate(test_grad_loss_r)))
+            # start_time = time.time()
 
-        # start_time = time.time()
+            if test_description is None:
+                test_description = test_indices
 
-        if test_description is None:
-            test_description = test_indices
+            approx_filename = os.path.join(self.train_dir, '%s-%s-%s-test-%s.npz' % (
+                self.model_name, approx_type, loss_type, test_description))
+            if os.path.exists(approx_filename) and force_refresh == False:
+                inverse_hvp = list(np.load(approx_filename)['inverse_hvp'])
+                print('Loaded inverse HVP from %s' % approx_filename)
+            else:
+                start_time = time.time()
+                inverse_hvp = self.get_inverse_hvp(
+                    test_grad_loss_r,
+                    approx_type,
+                    approx_params)
+                np.savez(approx_filename, inverse_hvp=inverse_hvp)
+                print('Saved inverse HVP to %s' % approx_filename)
 
-        approx_filename = os.path.join(self.train_dir, '%s-%s-%s-test-%s.npz' % (
-            self.model_name, approx_type, loss_type, test_description))
-        if os.path.exists(approx_filename) and force_refresh == False:
-            inverse_hvp = list(np.load(approx_filename)['inverse_hvp'])
-            print('Loaded inverse HVP from %s' % approx_filename)
-        else:
+            duration_1 = time.time() - start_time
+            print('Inverse HVP took %s sec' % duration_1)
+
             start_time = time.time()
-            inverse_hvp = self.get_inverse_hvp(
-                test_grad_loss_r,
-                approx_type,
-                approx_params)
-            np.savez(approx_filename, inverse_hvp=inverse_hvp)
-            print('Saved inverse HVP to %s' % approx_filename)
+            if train_idx is None:
+                num_to_remove = len(Y)
+                predicted_loss_diffs = np.zeros([num_to_remove])
+                for counter in np.arange(num_to_remove):
+                    single_train_feed_dict = self.fill_feed_dict_manual(X[counter, :], [Y[counter]])
+                    train_grad_loss_val = self.sess.run(self.grad_total_loss_op, feed_dict=single_train_feed_dict)
+                    predicted_loss_diffs[counter] = np.dot(np.concatenate(inverse_hvp),
+                                                        np.concatenate(train_grad_loss_val)) / self.num_train_examples
 
-        duration_1 = time.time() - start_time
-        print('Inverse HVP took %s sec' % duration_1)
+            else:
+                num_to_remove = len(self.train_indices_of_test_case)
+                predicted_loss_diffs = np.zeros([num_to_remove])
+                for counter, idx_to_remove in enumerate(self.train_indices_of_test_case):
+                    single_train_feed_dict = self.fill_feed_dict_with_one_ex(self.data_sets.train, idx_to_remove)
+                    train_grad_loss_val = self.sess.run(self.grad_total_loss_op_test, feed_dict=single_train_feed_dict)
+                    predicted_loss_diffs[counter] = np.dot(np.concatenate(inverse_hvp),
+                                                        np.concatenate(train_grad_loss_val)) / \
+                                                    self.train_indices_of_test_case.shape[0]
 
-        start_time = time.time()
-        if train_idx is None:
-            num_to_remove = len(Y)
-            predicted_loss_diffs = np.zeros([num_to_remove])
-            for counter in np.arange(num_to_remove):
-                single_train_feed_dict = self.fill_feed_dict_manual(X[counter, :], [Y[counter]])
-                train_grad_loss_val = self.sess.run(self.grad_total_loss_op, feed_dict=single_train_feed_dict)
-                predicted_loss_diffs[counter] = np.dot(np.concatenate(inverse_hvp),
-                                                       np.concatenate(train_grad_loss_val)) / self.num_train_examples
+            duration_2 = time.time() - start_time
+            print('Multiplying by %s train examples took %s sec' % (num_to_remove, duration_2))
+            print("Total time is %s sec" % (duration_1 + duration_2))
 
-        else:
-            num_to_remove = len(self.train_indices_of_test_case)
-            predicted_loss_diffs = np.zeros([num_to_remove])
-            for counter, idx_to_remove in enumerate(self.train_indices_of_test_case):
-                single_train_feed_dict = self.fill_feed_dict_with_one_ex(self.data_sets.train, idx_to_remove)
-                train_grad_loss_val = self.sess.run(self.grad_total_loss_op_test, feed_dict=single_train_feed_dict)
-                predicted_loss_diffs[counter] = np.dot(np.concatenate(inverse_hvp),
-                                                       np.concatenate(train_grad_loss_val)) / \
-                                                self.train_indices_of_test_case.shape[0]
-
-        duration_2 = time.time() - start_time
-        print('Multiplying by %s train examples took %s sec' % (num_to_remove, duration_2))
-        print("Total time is %s sec" % (duration_1 + duration_2))
-
-        return predicted_loss_diffs
+            return predicted_loss_diffs
 
     def get_r_grad_loss(self, test_indices, batch_size=100, loss_type='normal_loss'):
 
@@ -351,33 +350,34 @@ class NCF(GenericNeuralNet):
         return np.concatenate((u_indices, i_indices))
 
     def hessian_vector_product_test(self, ys, xs, v):
-        # Validate the input
-        length = len(v)
-        # if len(v) != length:
-        #     raise ValueError("xs and v must have the same length.")
+        with tf.device('/GPU:0'):
+            # Validate the input
+            length = len(v)
+            # if len(v) != length:
+            #     raise ValueError("xs and v must have the same length.")
 
-        # First backprop
-        grads = tf.gradients(ys, xs)
-        grads = self.get_test_grad(grads)
+            # First backprop
+            grads = tf.gradients(ys, xs)
+            grads = self.get_test_grad(grads)
 
-        # grads = xs
+            # grads = xs
 
-        assert len(grads) == length
+            assert len(grads) == length
 
-        elemwise_products = [
-            math_ops.multiply(grad_elem, array_ops.stop_gradient(v_elem))
-            for grad_elem, v_elem in zip(grads, v) if grad_elem is not None
-        ]
+            elemwise_products = [
+                math_ops.multiply(grad_elem, array_ops.stop_gradient(v_elem))
+                for grad_elem, v_elem in zip(grads, v) if grad_elem is not None
+            ]
 
-        # Second backprop
-        grads_with_none = tf.gradients(elemwise_products, xs)
-        return_grads = [
-            grad_elem if grad_elem is not None \
-                else tf.zeros_like(x) \
-            for x, grad_elem in zip(xs, grads_with_none)]
-        return_grads = self.get_test_grad(return_grads)
+            # Second backprop
+            grads_with_none = tf.gradients(elemwise_products, xs)
+            return_grads = [
+                grad_elem if grad_elem is not None \
+                    else tf.zeros_like(x) \
+                for x, grad_elem in zip(xs, grads_with_none)]
+            return_grads = self.get_test_grad(return_grads)
 
-        return return_grads
+            return return_grads
 
     def get_vec_to_list_fn_test(self):
         params_val = self.sess.run(self.params_test)
@@ -446,17 +446,18 @@ class NCF(GenericNeuralNet):
         return cg_callback
 
     def get_inverse_hvp_cg(self, v, verbose):
-        fmin_loss_fn = self.get_fmin_loss_fn(v)
-        fmin_grad_fn = self.get_fmin_grad_fn(v)
-        cg_callback = self.get_cg_callback(v, verbose)
+        with tf.device('/GPU:0'):
+            fmin_loss_fn = self.get_fmin_loss_fn(v)
+            fmin_grad_fn = self.get_fmin_grad_fn(v)
+            cg_callback = self.get_cg_callback(v, verbose)
 
-        fmin_results = fmin_ncg(
-            f=fmin_loss_fn,
-            x0=np.concatenate(v),
-            fprime=fmin_grad_fn,
-            fhess_p=self.get_fmin_hvp,
-            callback=cg_callback,
-            avextol=self.avextol,
-            maxiter=100)
+            fmin_results = fmin_ncg(
+                f=fmin_loss_fn,
+                x0=np.concatenate(v),
+                fprime=fmin_grad_fn,
+                fhess_p=self.get_fmin_hvp,
+                callback=cg_callback,
+                avextol=self.avextol,
+                maxiter=100)
 
-        return self.vec_to_list_test(fmin_results)
+            return self.vec_to_list_test(fmin_results)

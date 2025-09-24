@@ -214,7 +214,15 @@ def evaluate_files(parse_args, ks):
     args = parse_args()
     input_files = [f"{args.algo}_{k}.csv" for k in ks]
     print("eva, causal")
-    causal_tree = find_causal()  # Xây dựng cây nhân quả
+    causal_tree_path = 'causal_tree.pkl'
+    if os.path.exists(causal_tree_path):
+        import pickle
+        with open(causal_tree_path, 'rb') as f:
+            causal_tree = pickle.load(f)
+    else:
+        causal_tree = find_causal()
+        with open(causal_tree_path, 'wb') as f:
+            pickle.dump(causal_tree, f)
 
     for file in input_files:
         print(f"Processing file: {file}")
@@ -226,7 +234,7 @@ def evaluate_files(parse_args, ks):
         total = 0
         for id, row in data.iterrows():
             user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
-            batch_size = 1246
+            batch_size = 2048
             path = os.path.normpath(os.path.join(os.path.dirname(__file__), '../NCF/data'))
             data_sets = load_movielens(path, batch=batch_size, use_recs=True)
             u_indices = np.where(data_sets.train.x[:, 0] == user_id)[0] # tìm hàng các item người dùng đã tương tác ở tập train . 
