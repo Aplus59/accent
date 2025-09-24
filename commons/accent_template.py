@@ -1,7 +1,7 @@
 import numpy as np
 import math
 import os
-
+import pickle
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
 from commons.handle_causal import find_causal,find_child
 def find_counterfactual_set(sum_infl, a):
@@ -110,7 +110,6 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         """
         causal_tree_path = 'causal_tree.pkl'
         if os.path.exists(causal_tree_path):
-            import pickle
             with open(causal_tree_path, 'rb') as f:
                 causal_tree = pickle.load(f)
         else:

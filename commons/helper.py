@@ -2,7 +2,7 @@ import hashlib
 import os
 from ast import literal_eval
 from pathlib import Path
-
+import pickle
 import numpy as np
 import pandas as pd
 from commons.handle_causal import find_causal,find_child
@@ -216,7 +216,6 @@ def evaluate_files(parse_args, ks):
     print("eva, causal")
     causal_tree_path = 'causal_tree.pkl'
     if os.path.exists(causal_tree_path):
-        import pickle
         with open(causal_tree_path, 'rb') as f:
             causal_tree = pickle.load(f)
     else:
