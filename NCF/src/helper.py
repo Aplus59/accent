@@ -17,13 +17,13 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--avextol', type=float, default=1e-3,
                         help='threshold for optimization in influence function')
-    parser.add_argument('--damping', type=float, default=1e-5,
+    parser.add_argument('--damping', type=float, default=1e-6,
                         help='damping term in influence function')
-    parser.add_argument('--weight_decay', type=float, default=1e-4,
+    parser.add_argument('--weight_decay', type=float, default=1e-3,
                         help='l2 regularization term for training MF or NCF model')
     parser.add_argument('--lr', type=float, default=1e-3,
                         help='initial learning rate for training MF or NCF model')
-    parser.add_argument('--embed_size', type=int, default=32,
+    parser.add_argument('--embed_size', type=int, default=16,
                         help='embedding size')
     parser.add_argument('--maxinf', type=int, default=1,
                         help='remove type of train indices')
@@ -33,9 +33,9 @@ def parse_args():
                         help='model type: MF or NCF')
     parser.add_argument('--num_test', type=int, default=5,
                         help='number of test points of retraining')
-    parser.add_argument('--num_steps_train', type=int, default=500000,
+    parser.add_argument('--num_steps_train', type=int, default=120000,
                         help='training steps')
-    parser.add_argument('--num_steps_retrain', type=int, default=500000,
+    parser.add_argument('--num_steps_retrain', type=int, default=120000,
                         help='retraining steps')
     parser.add_argument('--reset_adam', type=int, default=0)
     parser.add_argument('--load_checkpoint', type=int, default=1)
@@ -81,7 +81,7 @@ def get_model(use_recs=False):
     """
     args = parse_args()
     if args.dataset == 'movielens':
-        batch_size = 2048
+        batch_size = 1246
         path = os.path.join(os.path.dirname(__file__), '../data')
         data_sets = load_movielens(path, batch=batch_size, use_recs=use_recs)
     else:

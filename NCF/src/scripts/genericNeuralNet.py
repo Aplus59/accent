@@ -98,13 +98,15 @@ class GenericNeuralNet(object):
             os.makedirs(self.train_dir)
 
         # Initialize session
-        os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-        gpu_options = tf.GPUOptions(allow_growth=True)
-        self.sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
-        # config = tf.ConfigProto()
-        # self.sess = tf.Session(config=config)
-        # K.set_session(self.sess)
-                
+        # Xóa hoặc sửa dòng này
+        # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+        config = tf.ConfigProto(
+            gpu_options=tf.GPUOptions(allow_growth=True),
+            allow_soft_placement=True,
+            log_device_placement=False
+        )
+        self.sess = tf.Session(config=config)
+    
         # Setup input
         self.input_placeholder, self.labels_placeholder = self.placeholder_inputs()
         self.num_train_examples = self.data_sets.train.labels.shape[0]
@@ -268,7 +270,6 @@ class GenericNeuralNet(object):
 
         num_examples = data_set.num_examples
         print (f'num_examples: {num_examples}, batch_size:{self.batch_size}')
-        assert num_examples % self.batch_size == 0
         num_iter = int(num_examples / self.batch_size)
 
         self.reset_datasets()
@@ -339,22 +340,16 @@ class GenericNeuralNet(object):
 
 
     def update_learning_rate(self, step):
-        assert self.num_train_examples % self.batch_size == 0
         num_steps_in_epoch = self.num_train_examples / self.batch_size
         epoch = step // num_steps_in_epoch
-
-        multiplier = 1
-        if epoch < self.decay_epochs[0]:
-            multiplier = 1
-        elif epoch < self.decay_epochs[1]:
+        multiplier = 1.0
+        if epoch >= self.decay_epochs[0]:
+            multiplier = 0.5
+        if epoch >= self.decay_epochs[1]:
             multiplier = 0.1
-        else:
-            multiplier = 0.01
-        
         self.sess.run(
-            self.update_learning_rate_op, 
-            feed_dict={self.learning_rate_placeholder: multiplier * self.initial_learning_rate})        
-
+            self.update_learning_rate_op,
+            feed_dict={self.learning_rate_placeholder: multiplier * self.initial_learning_rate})
 
     def train(self, num_steps, 
               iter_to_switch_to_batch=10000000,
@@ -374,7 +369,7 @@ class GenericNeuralNet(object):
             load_checkpoints=0
 
         for step in xrange(load_checkpoints+1, num_steps):
-            # self.update_learning_rate(step)
+            self.update_learning_rate(step)
 
             start_time = time.time()
 
@@ -883,4 +878,3 @@ class GenericNeuralNet(object):
         self.all_test_feed_dict = self.fill_feed_dict_with_all_ex(self.data_sets.test)                
         self.num_test_examples = len(new_test_y)
         self.reset_datasets()        
-
