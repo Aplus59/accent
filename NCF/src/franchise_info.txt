@@ -1,0 +1,277 @@
+Franchise information in hybrid tree:
+
+Franchise 1: Base Name = 'GoldenEye', Collection ID = 645
+  - New ID: 1, Old ID: 2, Title: GoldenEye (1995), Year: 1995, Release Date: 1995-11-16, Collection ID: 645
+  - New ID: 747, Old ID: 751, Title: Tomorrow Never Dies (1997), Year: 1997, Release Date: 1997-12-11, Collection ID: 645
+
+Franchise 2: Base Name = 'Batman', Collection ID = 120794
+  - New ID: 401, Old ID: 403, Title: Batman (1989), Year: 1989, Release Date: 1989-06-21, Collection ID: 120794
+  - New ID: 230, Old ID: 231, Title: Batman Returns (1992), Year: 1992, Release Date: 1992-06-19, Collection ID: 120794
+  - New ID: 28, Old ID: 29, Title: Batman Forever (1995), Year: 1995, Release Date: 1995-06-16, Collection ID: 120794
+  - New ID: 253, Old ID: 254, Title: Batman & Robin (1997), Year: 1997, Release Date: 1997-06-20, Collection ID: 120794
+
+Franchise 3: Base Name = 'Free Willy', Collection ID = 9328
+  - New ID: 77, Old ID: 78, Title: Free Willy (1993), Year: 1993, Release Date: 1993-07-16, Collection ID: 9328
+  - New ID: 34, Old ID: 35, Title: Free Willy 2: The Adventure Home (1995), Year: 1995, Release Date: 1995-07-19, Collection ID: 9328
+  - New ID: 455, Old ID: 457, Title: Free Willy 3: The Rescue (1997), Year: 1997, Release Date: 1997-08-06, Collection ID: 9328
+
+Franchise 4: Base Name = 'Star Wars', Collection ID = 10
+  - New ID: 49, Old ID: 50, Title: Star Wars (1977), Year: 1977, Release Date: 1977-05-25, Collection ID: 10
+  - New ID: 171, Old ID: 172, Title: Empire Strikes Back, The (1980), Year: 1980, Release Date: 1980-05-20, Collection ID: 10
+  - New ID: 180, Old ID: 181, Title: Return of the Jedi (1983), Year: 1997, Release Date: 1983-05-25, Collection ID: 10
+
+Franchise 5: Base Name = 'Three Colors', Collection ID = 131
+  - New ID: 59, Old ID: 60, Title: Three Colors: Blue (1993), Year: 1993, Release Date: 1993-09-08, Collection ID: 131
+  - New ID: 60, Old ID: 61, Title: Three Colors: White (1994), Year: 1994, Release Date: 1994-01-26, Collection ID: 131
+  - New ID: 58, Old ID: 59, Title: Three Colors: Red (1994), Year: 1994, Release Date: 1994-05-12, Collection ID: 131
+
+Franchise 6: Base Name = 'Ace Ventura', Collection ID = 3167
+  - New ID: 66, Old ID: 67, Title: Ace Ventura: Pet Detective (1994), Year: 1994, Release Date: 1994-02-04, Collection ID: 3167
+  - New ID: 362, Old ID: 364, Title: Ace Ventura: When Nature Calls (1995), Year: 1995, Release Date: 1995-11-10, Collection ID: 3167
+
+Franchise 7: Base Name = 'Crow', Collection ID = 9436
+  - New ID: 67, Old ID: 68, Title: Crow, The (1994), Year: 1994, Release Date: 1994-05-11, Collection ID: 9436
+  - New ID: 739, Old ID: 743, Title: Crow: City of Angels, The (1996), Year: 1996, Release Date: 1996-08-29, Collection ID: 9436
+
+Franchise 8: Base Name = 'Jurassic Park', Collection ID = 328
+  - New ID: 81, Old ID: 82, Title: Jurassic Park (1993), Year: 1993, Release Date: 1993-06-11, Collection ID: 328
+  - New ID: 251, Old ID: 252, Title: Lost World: Jurassic Park, The (1997), Year: 1997, Release Date: 1997-05-23, Collection ID: 328
+
+Franchise 9: Base Name = 'Home Alone', Collection ID = 9888
+  - New ID: 93, Old ID: 94, Title: Home Alone (1990), Year: 1990, Release Date: 1990-11-16, Collection ID: 9888
+  - New ID: 889, Old ID: 894, Title: Home Alone 3 (1997), Year: 1997, Release Date: 1997-12-12, Collection ID: 9888
+
+Franchise 10: Base Name = 'Aladdin', Collection ID = 86027
+  - New ID: 94, Old ID: 95, Title: Aladdin (1992), Year: 1992, Release Date: 1992-11-25, Collection ID: 86027
+  - New ID: 420, Old ID: 422, Title: Aladdin and the King of Thieves (1996), Year: 1996, Release Date: 1996-05-20, Collection ID: 86027
+
+Franchise 11: Base Name = 'Terminator', Collection ID = 528
+  - New ID: 194, Old ID: 195, Title: Terminator, The (1984), Year: 1984, Release Date: 1984-10-26, Collection ID: 528
+  - New ID: 95, Old ID: 96, Title: Terminator 2: Judgment Day (1991), Year: 1991, Release Date: 1991-07-03, Collection ID: 528
+
+Franchise 12: Base Name = 'Godfather', Collection ID = 230
+  - New ID: 126, Old ID: 127, Title: Godfather, The (1972), Year: 1972, Release Date: 1972-03-14, Collection ID: 230
+  - New ID: 186, Old ID: 187, Title: Godfather: Part II, The (1974), Year: 1974, Release Date: 1974-12-20, Collection ID: 230
+
+Franchise 13: Base Name = 'Supercop', Collection ID = 269098
+  - New ID: 127, Old ID: 128, Title: Supercop (1992), Year: 1996, Release Date: 1992-07-04, Collection ID: 269098
+  - New ID: 453, Old ID: 455, Title: Jackie Chan's First Strike (1996), Year: 1997, Release Date: 1996-02-10, Collection ID: 269098
+
+Franchise 14: Base Name = 'Love Bug', Collection ID = 12087
+  - New ID: 138, Old ID: 139, Title: Love Bug, The (1969), Year: 1969, Release Date: 1968-12-23, Collection ID: 12087
+  - New ID: 1456, Old ID: 1480, Title: Herbie Rides Again (1974), Year: 1974, Release Date: 1974-02-12, Collection ID: 12087
+
+Franchise 15: Base Name = 'Homeward Bound', Collection ID = 43058
+  - New ID: 139, Old ID: 140, Title: Homeward Bound: The Incredible Journey (1993), Year: 1993, Release Date: 1993-02-03, Collection ID: 43058
+  - New ID: 1024, Old ID: 1033, Title: Homeward Bound II: Lost in San Francisco (1996), Year: 1996, Release Date: 1996-03-08, Collection ID: 43058
+
+Franchise 16: Base Name = 'Die Hard', Collection ID = 1570
+  - New ID: 143, Old ID: 144, Title: Die Hard (1988), Year: 1988, Release Date: 1988-07-15, Collection ID: 1570
+  - New ID: 225, Old ID: 226, Title: Die Hard 2 (1990), Year: 1990, Release Date: 1990-07-03, Collection ID: 1570
+  - New ID: 548, Old ID: 550, Title: Die Hard: With a Vengeance (1995), Year: 1995, Release Date: 1995-05-19, Collection ID: 1570
+
+Franchise 17: Base Name = 'Lawnmower Man', Collection ID = 124935
+  - New ID: 144, Old ID: 145, Title: Lawnmower Man, The (1992), Year: 1992, Release Date: 1992-03-05, Collection ID: 124935
+  - New ID: 754, Old ID: 758, Title: Lawnmower Man 2: Beyond Cyberspace (1996), Year: 1996, Release Date: 1996-01-12, Collection ID: 124935
+
+Franchise 18: Base Name = 'Jean de Florette', Collection ID = 39460
+  - New ID: 164, Old ID: 165, Title: Jean de Florette (1986), Year: 1986, Release Date: 1986-08-27, Collection ID: 39460
+  - New ID: 165, Old ID: 166, Title: Manon of the Spring (Manon des sources) (1986), Year: 1986, Release Date: 1986-11-19, Collection ID: 39460
+
+Franchise 19: Base Name = 'Wrong Trousers', Collection ID = 529
+  - New ID: 168, Old ID: 169, Title: Wrong Trousers, The (1993), Year: 1993, Release Date: 1993-12-17, Collection ID: 529
+  - New ID: 406, Old ID: 408, Title: Close Shave, A (1995), Year: 1996, Release Date: 1996-03-07, Collection ID: 529
+
+Franchise 20: Base Name = 'Raiders of the Lost Ark', Collection ID = 84
+  - New ID: 173, Old ID: 174, Title: Raiders of the Lost Ark (1981), Year: 1981, Release Date: 1981-06-12, Collection ID: 84
+  - New ID: 209, Old ID: 210, Title: Indiana Jones and the Last Crusade (1989), Year: 1989, Release Date: 1989-05-24, Collection ID: 84
+
+Franchise 21: Base Name = 'Alien', Collection ID = 8091
+  - New ID: 182, Old ID: 183, Title: Alien (1979), Year: 1979, Release Date: 1979-05-25, Collection ID: 8091
+  - New ID: 175, Old ID: 176, Title: Aliens (1986), Year: 1986, Release Date: 1986-07-18, Collection ID: 8091
+  - New ID: 663, Old ID: 665, Title: Alien 3 (1992), Year: 1992, Release Date: 1992-05-22, Collection ID: 8091
+  - New ID: 341, Old ID: 343, Title: Alien: Resurrection (1997), Year: 1997, Release Date: 1997-11-12, Collection ID: 8091
+
+Franchise 22: Base Name = 'Evil Dead', Collection ID = 1960
+  - New ID: 200, Old ID: 201, Title: Evil Dead II (1987), Year: 1987, Release Date: 1987-03-13, Collection ID: 1960
+  - New ID: 183, Old ID: 184, Title: Army of Darkness (1993), Year: 1993, Release Date: 1992-10-31, Collection ID: 1960
+
+Franchise 23: Base Name = 'Blues Brothers', Collection ID = 112636
+  - New ID: 185, Old ID: 186, Title: Blues Brothers, The (1980), Year: 1980, Release Date: 1980-06-16, Collection ID: 112636
+  - New ID: 360, Old ID: 362, Title: Blues Brothers 2000 (1998), Year: 1998, Release Date: 1998-02-06, Collection ID: 112636
+
+Franchise 24: Base Name = 'Nightmare on Elm Street', Collection ID = 8581
+  - New ID: 218, Old ID: 219, Title: Nightmare on Elm Street, A (1984), Year: 1984, Release Date: 1984-11-09, Collection ID: 8581
+  - New ID: 565, Old ID: 567, Title: Wes Craven's New Nightmare (1994), Year: 1994, Release Date: 1994-10-13, Collection ID: 8581
+
+Franchise 25: Base Name = 'Star Trek', Collection ID = 115570
+  - New ID: 378, Old ID: 380, Title: Star Trek: Generations (1994), Year: 1994, Release Date: 1994-11-18, Collection ID: 115570
+  - New ID: 221, Old ID: 222, Title: Star Trek: First Contact (1996), Year: 1996, Release Date: 1996-11-22, Collection ID: 115570
+
+Franchise 26: Base Name = 'Star Trek', Collection ID = 151
+  - New ID: 447, Old ID: 449, Title: Star Trek: The Motion Picture (1979), Year: 1979, Release Date: 1979-12-07, Collection ID: 151
+  - New ID: 227, Old ID: 228, Title: Star Trek: The Wrath of Khan (1982), Year: 1982, Release Date: 1982-06-04, Collection ID: 151
+  - New ID: 228, Old ID: 229, Title: Star Trek III: The Search for Spock (1984), Year: 1984, Release Date: 1984-06-01, Collection ID: 151
+  - New ID: 229, Old ID: 230, Title: Star Trek IV: The Voyage Home (1986), Year: 1986, Release Date: 1986-11-26, Collection ID: 151
+  - New ID: 448, Old ID: 450, Title: Star Trek V: The Final Frontier (1989), Year: 1989, Release Date: 1989-06-09, Collection ID: 151
+  - New ID: 226, Old ID: 227, Title: Star Trek VI: The Undiscovered Country (1991), Year: 1991, Release Date: 1991-12-06, Collection ID: 151
+
+Franchise 27: Base Name = 'Young Guns', Collection ID = 9329
+  - New ID: 231, Old ID: 232, Title: Young Guns (1988), Year: 1988, Release Date: 1988-08-12, Collection ID: 9329
+  - New ID: 1175, Old ID: 1188, Title: Young Guns II (1990), Year: 1990, Release Date: 1990-08-01, Collection ID: 9329
+
+Franchise 28: Base Name = 'Under Siege', Collection ID = 112399
+  - New ID: 232, Old ID: 233, Title: Under Siege (1992), Year: 1992, Release Date: 1992-10-08, Collection ID: 112399
+  - New ID: 1215, Old ID: 1228, Title: Under Siege 2: Dark Territory (1995), Year: 1995, Release Date: 1995-07-13, Collection ID: 112399
+
+Franchise 29: Base Name = 'Jaws', Collection ID = 2366
+  - New ID: 233, Old ID: 234, Title: Jaws (1975), Year: 1975, Release Date: 1975-06-20, Collection ID: 2366
+  - New ID: 450, Old ID: 452, Title: Jaws 2 (1978), Year: 1978, Release Date: 1978-06-16, Collection ID: 2366
+  - New ID: 451, Old ID: 453, Title: Jaws 3-D (1983), Year: 1983, Release Date: 1983-07-22, Collection ID: 2366
+
+Franchise 30: Base Name = 'Mighty Morphin Power Rangers', Collection ID = 708816
+  - New ID: 372, Old ID: 374, Title: Mighty Morphin Power Rangers: The Movie (1995), Year: 1995, Release Date: 1995-06-30, Collection ID: 708816
+  - New ID: 246, Old ID: 247, Title: Turbo: A Power Rangers Movie (1997), Year: 1997, Release Date: 1997-03-27, Collection ID: 708816
+
+Franchise 31: Base Name = 'Hunt for Red October', Collection ID = 192492
+  - New ID: 264, Old ID: 265, Title: Hunt for Red October, The (1990), Year: 1990, Release Date: 1990-03-02, Collection ID: 192492
+  - New ID: 564, Old ID: 566, Title: Clear and Present Danger (1994), Year: 1994, Release Date: 1994-08-03, Collection ID: 192492
+
+Franchise 32: Base Name = 'Scream', Collection ID = 2602
+  - New ID: 286, Old ID: 288, Title: Scream (1996), Year: 1996, Release Date: 1996-12-20, Collection ID: 2602
+  - New ID: 890, Old ID: 895, Title: Scream 2 (1997), Year: 1997, Release Date: 1997-12-12, Collection ID: 2602
+
+Franchise 33: Base Name = 'Prophecy', Collection ID = 9068
+  - New ID: 770, Old ID: 774, Title: Prophecy, The (1995), Year: 1995, Release Date: 1995-08-05, Collection ID: 9068
+  - New ID: 349, Old ID: 351, Title: Prophecy II, The (1998), Year: 1998, Release Date: 1998-01-20, Collection ID: 9068
+
+Franchise 34: Base Name = 'Tales From the Crypt Presents', Collection ID = 115142
+  - New ID: 377, Old ID: 379, Title: Tales From the Crypt Presents: Demon Knight (1995), Year: 1995, Release Date: 1995-01-13, Collection ID: 115142
+  - New ID: 411, Old ID: 413, Title: Tales from the Crypt Presents: Bordello of Blood (1996), Year: 1996, Release Date: 1996-08-16, Collection ID: 115142
+
+Franchise 35: Base Name = 'Brady Bunch Movie', Collection ID = 224478
+  - New ID: 399, Old ID: 401, Title: Brady Bunch Movie, The (1995), Year: 1995, Release Date: 1995-02-16, Collection ID: 224478
+  - New ID: 410, Old ID: 412, Title: Very Brady Sequel, A (1996), Year: 1996, Release Date: 1996-08-23, Collection ID: 224478
+
+Franchise 36: Base Name = 'Highlander', Collection ID = 8050
+  - New ID: 429, Old ID: 431, Title: Highlander (1986), Year: 1986, Release Date: 1986-03-07, Collection ID: 8050
+  - New ID: 1403, Old ID: 1419, Title: Highlander III: The Sorcerer (1994), Year: 1994, Release Date: 1994-11-29, Collection ID: 8050
+
+Franchise 37: Base Name = 'Amityville Horror', Collection ID = 397842
+  - New ID: 439, Old ID: 441, Title: Amityville Horror, The (1979), Year: 1979, Release Date: 1979-07-27, Collection ID: 397842
+  - New ID: 438, Old ID: 440, Title: Amityville II: The Possession (1982), Year: 1982, Release Date: 1982-09-24, Collection ID: 397842
+  - New ID: 436, Old ID: 438, Title: Amityville 3-D (1983), Year: 1983, Release Date: 1983-11-18, Collection ID: 397842
+  - New ID: 440, Old ID: 442, Title: Amityville Curse, The (1990), Year: 1990, Release Date: 1990-05-07, Collection ID: 397842
+  - New ID: 435, Old ID: 437, Title: Amityville 1992: It's About Time (1992), Year: 1992, Release Date: 1992-07-16, Collection ID: 397842
+  - New ID: 437, Old ID: 439, Title: Amityville: A New Generation (1993), Year: 1993, Release Date: 1993-09-29, Collection ID: 397842
+  - New ID: 853, Old ID: 858, Title: Amityville: Dollhouse (1996), Year: 1996, Release Date: 1996-10-02, Collection ID: 397842
+
+Franchise 38: Base Name = 'Grease', Collection ID = 86083
+  - New ID: 449, Old ID: 451, Title: Grease (1978), Year: 1978, Release Date: 1978-06-16, Collection ID: 86083
+  - New ID: 1028, Old ID: 1037, Title: Grease 2 (1982), Year: 1982, Release Date: 1982-06-11, Collection ID: 86083
+
+Franchise 39: Base Name = 'Smoke', Collection ID = 439053
+  - New ID: 459, Old ID: 461, Title: Smoke (1995), Year: 1995, Release Date: 1995-06-09, Collection ID: 439053
+  - New ID: 944, Old ID: 952, Title: Blue in the Face (1995), Year: 1995, Release Date: 1995-09-15, Collection ID: 439053
+
+Franchise 40: Base Name = 'Mortal Kombat', Collection ID = 9818
+  - New ID: 539, Old ID: 541, Title: Mortal Kombat (1995), Year: 1995, Release Date: 1995-08-18, Collection ID: 9818
+  - New ID: 885, Old ID: 890, Title: Mortal Kombat: Annihilation (1997), Year: 1997, Release Date: 1997-11-11, Collection ID: 9818
+
+Franchise 41: Base Name = 'Speed', Collection ID = 43064
+  - New ID: 566, Old ID: 568, Title: Speed (1994), Year: 1994, Release Date: 1994-06-09, Collection ID: 43064
+  - New ID: 1080, Old ID: 1089, Title: Speed 2: Cruise Control (1997), Year: 1997, Release Date: 1997-06-13, Collection ID: 43064
+
+Franchise 42: Base Name = 'Escape from New York', Collection ID = 115838
+  - New ID: 634, Old ID: 636, Title: Escape from New York (1981), Year: 1981, Release Date: 1981-05-23, Collection ID: 115838
+  - New ID: 826, Old ID: 831, Title: Escape from L.A. (1996), Year: 1996, Release Date: 1996-08-09, Collection ID: 115838
+
+Franchise 43: Base Name = 'Candyman', Collection ID = 98580
+  - New ID: 670, Old ID: 672, Title: Candyman (1992), Year: 1992, Release Date: 1992-10-16, Collection ID: 98580
+  - New ID: 811, Old ID: 816, Title: Candyman: Farewell to the Flesh (1995), Year: 1995, Release Date: 1995-03-17, Collection ID: 98580
+
+Franchise 44: Base Name = 'Best of the Best', Collection ID = 153948
+  - New ID: 1236, Old ID: 1250, Title: Best of the Best 3: No Turning Back (1995), Year: 1995, Release Date: 1995-05-17, Collection ID: 153948
+  - New ID: 1401, Old ID: 1417, Title: Turning, The (1992), Year: 1997, Release Date: 1995-05-17, Collection ID: 153948
+
+Franchise 45: Base Name = 'Cape Fear', Collection ID = None
+  - New ID: 671, Old ID: 673, Title: Cape Fear (1962), Year: 1962, Release Date: 1962-04-12, Collection ID: None
+  - New ID: 217, Old ID: 218, Title: Cape Fear (1991), Year: 1991, Release Date: 1991-11-13, Collection ID: None
+
+Franchise 46: Base Name = 'Chasing Amy', Collection ID = None
+  - New ID: 245, Old ID: 246, Title: Chasing Amy (1997), Year: 1997, Release Date: 1997-04-04, Collection ID: None
+  - New ID: 266, Old ID: 268, Title: Chasing Amy (1997), Year: 1997, Release Date: 1997-04-04, Collection ID: None
+
+Franchise 47: Base Name = 'Shall We Dance?', Collection ID = None
+  - New ID: 1272, Old ID: 1286, Title: Shall We Dance? (1937), Year: 1937, Release Date: 1937-05-07, Collection ID: None
+  - New ID: 250, Old ID: 251, Title: Shall We Dance? (1996), Year: 1997, Release Date: 1996-01-27, Collection ID: None
+
+Franchise 48: Base Name = 'Kull the Conqueror', Collection ID = None
+  - New ID: 265, Old ID: 266, Title: Kull the Conqueror (1997), Year: 1997, Release Date: 1997-08-29, Collection ID: None
+  - New ID: 677, Old ID: 680, Title: Kull the Conqueror (1997), Year: 1997, Release Date: 1997-08-29, Collection ID: None
+
+Franchise 49: Base Name = 'Sabrina', Collection ID = None
+  - New ID: 484, Old ID: 486, Title: Sabrina (1954), Year: 1954, Release Date: 1954-09-01, Collection ID: None
+  - New ID: 272, Old ID: 274, Title: Sabrina (1995), Year: 1995, Release Date: 1995-12-15, Collection ID: None
+
+Franchise 50: Base Name = 'Ulee's Gold', Collection ID = None
+  - New ID: 295, Old ID: 297, Title: Ulee's Gold (1997), Year: 1997, Release Date: 1997-06-13, Collection ID: None
+  - New ID: 301, Old ID: 303, Title: Ulee's Gold (1997), Year: 1997, Release Date: 1997-06-13, Collection ID: None
+
+Franchise 51: Base Name = 'Fly Away Home', Collection ID = None
+  - New ID: 302, Old ID: 304, Title: Fly Away Home (1996), Year: 1996, Release Date: 1996-09-13, Collection ID: None
+  - New ID: 498, Old ID: 500, Title: Fly Away Home (1996), Year: 1996, Release Date: 1996-09-13, Collection ID: None
+
+Franchise 52: Base Name = 'Ice Storm', Collection ID = None
+  - New ID: 303, Old ID: 305, Title: Ice Storm, The (1997), Year: 1997, Release Date: 1997-09-27, Collection ID: None
+  - New ID: 860, Old ID: 865, Title: Ice Storm, The (1997), Year: 1997, Release Date: 1997-09-27, Collection ID: None
+
+Franchise 53: Base Name = 'Deceiver', Collection ID = None
+  - New ID: 307, Old ID: 309, Title: Deceiver (1997), Year: 1997, Release Date: 1997-08-31, Collection ID: None
+  - New ID: 1553, Old ID: 1606, Title: Deceiver (1997), Year: 1997, Release Date: 1997-08-31, Collection ID: None
+
+Franchise 54: Base Name = 'Desperate Measures', Collection ID = None
+  - New ID: 327, Old ID: 329, Title: Desperate Measures (1998), Year: 1998, Release Date: 1998-01-30, Collection ID: None
+  - New ID: 346, Old ID: 348, Title: Desperate Measures (1998), Year: 1998, Release Date: 1998-01-30, Collection ID: None
+
+Franchise 55: Base Name = 'Robin Hood', Collection ID = None
+  - New ID: 625, Old ID: 627, Title: Robin Hood: Prince of Thieves (1991), Year: 1991, Release Date: 1991-06-14, Collection ID: None
+  - New ID: 393, Old ID: 395, Title: Robin Hood: Men in Tights (1993), Year: 1993, Release Date: 1993-07-28, Collection ID: None
+
+Franchise 56: Base Name = 'Body Snatchers', Collection ID = None
+  - New ID: 571, Old ID: 573, Title: Body Snatchers (1993), Year: 1993, Release Date: 1993-06-09, Collection ID: None
+  - New ID: 668, Old ID: 670, Title: Body Snatchers (1993), Year: 1993, Release Date: 1993-06-09, Collection ID: None
+
+Franchise 57: Base Name = 'Money Talks', Collection ID = None
+  - New ID: 871, Old ID: 876, Title: Money Talks (1997), Year: 1997, Release Date: 1997-08-22, Collection ID: None
+  - New ID: 876, Old ID: 881, Title: Money Talks (1997), Year: 1997, Release Date: 1997-08-22, Collection ID: None
+
+Franchise 58: Base Name = 'That Darn Cat!', Collection ID = None
+  - New ID: 1426, Old ID: 1444, Title: That Darn Cat! (1965), Year: 1965, Release Date: 1965-12-02, Collection ID: None
+  - New ID: 873, Old ID: 878, Title: That Darn Cat! (1997), Year: 1997, Release Date: 1997-02-14, Collection ID: None
+  - New ID: 994, Old ID: 1003, Title: That Darn Cat! (1997), Year: 1997, Release Date: 1997-02-14, Collection ID: None
+
+Franchise 59: Base Name = 'Little Princess', Collection ID = None
+  - New ID: 1450, Old ID: 1473, Title: Little Princess, The (1939), Year: 1939, Release Date: 1939-03-17, Collection ID: None
+  - New ID: 1054, Old ID: 1063, Title: Little Princess, A (1995), Year: 1995, Release Date: 1995-05-10, Collection ID: None
+
+Franchise 60: Base Name = 'Hugo Pool', Collection ID = None
+  - New ID: 1162, Old ID: 1175, Title: Hugo Pool (1997), Year: 1997, Release Date: 1997-12-12, Collection ID: None
+  - New ID: 1562, Old ID: 1617, Title: Hugo Pool (1997), Year: 1997, Release Date: 1997-12-12, Collection ID: None
+
+Franchise 61: Base Name = 'Chairman of the Board', Collection ID = None
+  - New ID: 1221, Old ID: 1234, Title: Chairman of the Board (1998), Year: 1998, Release Date: 1998-03-13, Collection ID: None
+  - New ID: 1585, Old ID: 1654, Title: Chairman of the Board (1998), Year: 1998, Release Date: 1998-03-13, Collection ID: None
+
+Franchise 62: Base Name = 'Designated Mourner', Collection ID = None
+  - New ID: 1242, Old ID: 1256, Title: Designated Mourner, The (1997), Year: 1997, Release Date: 1997-05-23, Collection ID: None
+  - New ID: 1243, Old ID: 1257, Title: Designated Mourner, The (1997), Year: 1997, Release Date: 1997-05-23, Collection ID: None
+
+Franchise 63: Base Name = 'Hurricane Streets', Collection ID = None
+  - New ID: 1379, Old ID: 1395, Title: Hurricane Streets (1998), Year: 1998, Release Date: 1998-01-01, Collection ID: None
+  - New ID: 1554, Old ID: 1607, Title: Hurricane Streets (1998), Year: 1998, Release Date: 1998-01-01, Collection ID: None
+
+Franchise 64: Base Name = 'Scarlet Letter', Collection ID = None
+  - New ID: 1511, Old ID: 1542, Title: Scarlet Letter, The (1926), Year: 1926, Release Date: 1927-01-08, Collection ID: None
+  - New ID: 1424, Old ID: 1442, Title: Scarlet Letter, The (1995), Year: 1995, Release Date: 1995-10-13, Collection ID: None
+

@@ -78,32 +78,56 @@ def compress(series):
 
 
 def generate_interaction_data_ncf():
-	"""
-	generate interaction data for NCF
-	Returns:
-		write generated data to movielens_train.tsv
-	"""
-	data = pd.read_table('../data/u.data', names=['user', 'item', 'rating', 'timestamp'])
-	loader = movie_loader()
-	train_data = []
-	for user in data['user'].unique():
-		user_data = data[data['user'] == user].sort_values(by=['timestamp'])
-		pos_items = user_data['item'][user_data['rating'] >= 3]
-		neg_items = user_data['item'][user_data['rating'] < 3]
-		pos_items = list(filter(lambda item: loader.movie_dict.get(item) is not None, pos_items))
-		neg_items = list(filter(lambda item: loader.movie_dict.get(item) is not None, neg_items))
-		if len(neg_items) < 10 or len(pos_items) < 10:
-			continue
-		n_pos_tests = len(pos_items) // 5
-		n_neg_tests = len(neg_items) // 5
-		all_items = set(pos_items[:-n_pos_tests]).union(set(neg_items[:-n_neg_tests]))
-		user_data = user_data[user_data['item'].isin(all_items)]
-		train_data.append(user_data)
-	train_data = pd.concat(train_data)
-	_, _, train_data['user'] = compress([train_data['user']])
-	_, _, train_data['item'] = compress([train_data['item']])
-	train_data.to_csv('movielens_train.tsv', index=False, sep='\t', header=False)
-
+    """
+    generate interaction data for NCF
+    Returns:
+    write generated data to movielens_train.tsv
+    """
+    data = pd.read_table('../data/u.data', names=['user', 'item', 'rating', 'timestamp'])
+    loader = movie_loader()
+    train_data = []
+    for user in data['user'].unique():
+        user_data = data[data['user'] == user].sort_values(by=['timestamp'])
+        pos_items = user_data['item'][user_data['rating'] >= 3]
+        neg_items = user_data['item'][user_data['rating'] < 3]
+        pos_items = list(filter(lambda item: loader.movie_dict.get(item) is not None, pos_items))
+        neg_items = list(filter(lambda item: loader.movie_dict.get(item) is not None, neg_items))
+        if len(neg_items) < 10 or len(pos_items) < 10:
+            continue
+        n_pos_tests = len(pos_items) // 5
+        n_neg_tests = len(neg_items) // 5
+        all_items = set(pos_items[:-n_pos_tests]).union(set(neg_items[:-n_neg_tests]))
+        user_data = user_data[user_data['item'].isin(all_items)]
+        train_data.append(user_data)
+    
+    train_data = pd.concat(train_data)
+    
+    # ────────────────────────────────────────────────
+    # Thêm phần này để tạo và lưu item mapping
+    # Lấy danh sách item cuối cùng trước khi compress
+    original_items = sorted(train_data['item'].unique())
+    
+    # Tạo mapping: original_id → new_id (từ 0, 1, 2, ...)
+    item_map = {old_id: new_id for new_id, old_id in enumerate(original_items)}
+    
+    # Lưu ra file (dạng csv dễ đọc và merge sau này)
+    item_map_df = pd.DataFrame({
+        'original_item': list(item_map.keys()),
+        'new_item': list(item_map.values())
+    })
+    item_map_df.to_csv('item_mapping.csv', index=False)
+    
+    # Nếu muốn lưu dạng dict để load nhanh bằng pickle
+    # import pickle
+    # with open('item_mapping.pkl', 'wb') as f:
+    #     pickle.dump(item_map, f)
+    # ────────────────────────────────────────────────
+    
+    # Tiếp tục phần compress như cũ
+    _, _, train_data['user'] = compress([train_data['user']])
+    _, _, train_data['item'] = compress([train_data['item']])
+    
+    train_data.to_csv('movielens_train.tsv', index=False, sep='\t', header=False)
 
 if __name__ == "__main__":
 	generate_interaction_data()

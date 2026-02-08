@@ -5,11 +5,10 @@ from pathlib import Path
 import pickle
 import numpy as np
 import pandas as pd
-from commons.handle_causal import find_causal,find_child
+from commons.handle_causal import find_child  # Chỉ cần find_child, không cần find_causal nữa
 from NCF.src.helper import get_model
 from NCF.src.scripts.load_movielens import load_movielens
 
-from commons.handle_causal import find_causal,find_child
 
 def init_all_results(ks):
     """
@@ -219,9 +218,8 @@ def evaluate_files(parse_args, ks):
         with open(causal_tree_path, 'rb') as f:
             causal_tree = pickle.load(f)
     else:
-        causal_tree = find_causal()
-        with open(causal_tree_path, 'wb') as f:
-            pickle.dump(causal_tree, f)
+        # Nếu không tồn tại, báo lỗi hoặc xử lý tùy ý (không build nữa)
+        raise FileNotFoundError(f"Causal tree file not found: {causal_tree_path}. Please run handle_causal.py first.")
 
     for file in input_files:
         print(f"Processing file: {file}")

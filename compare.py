@@ -5,8 +5,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import ttest_rel
 from statsmodels.stats.contingency_tables import mcnemar
-from commons.handle_causal import find_causal,find_child
+from commons.handle_causal import find_child  # Không cần find_causal nữa vì load pickle
+import pickle
 from NCF.src.scripts.load_movielens import load_movielens
+import os  # Thêm để dùng relative path
 
 
 def get_success(file):
@@ -56,7 +58,7 @@ def get_causal(file, causal_tree):
     """
     Kiểm tra điều kiện nhân quả cho mỗi instance và trả về một mảng nhị phân.
     :param file: File kết quả của thuật toán cần đánh giá.
-    :param causal_tree: Cây nhân quả đã được xây dựng từ find_causal().
+    :param causal_tree: Cây nhân quả đã được load từ pickle.
     :return: Một mảng nhị phân với giá trị 1 nếu điều kiện nhân quả được thỏa mãn, ngược lại là 0.
     """
     data = pd.read_csv(file)
@@ -67,7 +69,8 @@ def get_causal(file, causal_tree):
     for id, row in data.iterrows():
         user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
         batch_size = 2048
-        path = r"C:\Users\admin\Desktop\XAI\pj_accent\accent\NCF\data"
+        # Sử dụng relative path từ script hiện tại
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'NCF', 'data')
         data_sets = load_movielens(path, batch=batch_size, use_recs=True)
         u_indices = np.where(data_sets.train.x[:, 0] == user_id)[0] # tìm hàng các item người dùng đã tương tác ở tập train . 
         visited = [int(data_sets.train.x[i, 1]) for i in u_indices]
@@ -88,7 +91,7 @@ def satisfies_causal_conditions(counterfactual, causal_tree, visited):
     Kiểm tra điều kiện nhân quả.
     Args:
         counterfactual: Danh sách các item bị loại bỏ.
-        causal_tree: Cây nhân quả được xây dựng từ find_causal().
+        causal_tree: Cây nhân quả được load từ pickle.
     Returns:
         True nếu tất cả các điều kiện nhân quả được thỏa mãn, False nếu vi phạm.
     """
@@ -114,7 +117,11 @@ def print_result(file):
 
     algo_size = get_size(file, res)
     print(f'{file} size: {np.mean(algo_size)}')
-    causal_tree = find_causal()
+    
+    # Load causal tree từ pickle thay vì build mới
+    with open('causal_tree_hybrid.pkl', 'rb') as f:
+        causal_tree = pickle.load(f)
+    
     # thêm causal
     res_causal = get_causal(file,causal_tree)
     print(f'causal {file}: {np.mean(res_causal)}')
@@ -149,10 +156,14 @@ def compare_algo(file, file2):
     print(f'{file2} size: {np.mean(algo2_size)}')
     print(f't-test: {ttest_rel(algo_size, algo2_size)[1] / 2}')
 
+    # Load causal tree từ pickle thay vì build mới
+    with open('commons\causal_tree.pkl', 'rb') as f:
+        causal_tree = pickle.load(f)
+    
     # thêm causal
     cont_causal_table = np.zeros((2, 2))
-    res_c = get_causal(file)
-    res_c2 = get_causal(file2)
+    res_c = get_causal(file, causal_tree)
+    res_c2 = get_causal(file2, causal_tree)
     for u, v in zip(res_c, res_c2):
         cont_causal_table[1 - u, 1 - v] += 1
     print(f'{file}: {np.mean(res_c)}')
