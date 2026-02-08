@@ -364,7 +364,6 @@ def find_child(root, name):
     if target_node:
         return [descendant.name for descendant in target_node.descendants]
     else:
-        print("Node not found.")
         return None
     
 # Load hoặc tạo mới (lưu cả ba cây)

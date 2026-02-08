@@ -118,7 +118,9 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         Returns: if possible, return the set of items that must be removed to swap and the new score gap
                 else, None, 1e9
         """
-        causal_tree_path = 'causal_tree.pkl'
+        print(f'handle causal_tree')
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        causal_tree_path = os.path.join(current_dir, 'causal_tree.pkl')
         if os.path.exists(causal_tree_path):
             with open(causal_tree_path, 'rb') as f:
                 causal_tree = pickle.load(f)
@@ -128,14 +130,11 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         print(f'try replace', repl, score_gap)
         causal_list = []
         for id in visited:
-            if id == 0:
-                causal_list.append(id)
+            children = find_child(causal_tree,f'{id}')
+            if children != None:
+                causal_list.append([id] + [int(child) for child in children if int(child) in visited])
             else:
-                children = find_child(causal_tree,f'{id}')
-                if len(children) != 0:
-                    causal_list.append([id] + [int(child) for child in children if int(child) in visited])
-                else:
-                    causal_list.append(id)
+                causal_list.append(id)
                 
         index_causal_list = []
         for item in causal_list:
