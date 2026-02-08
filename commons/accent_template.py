@@ -123,9 +123,7 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
             with open(causal_tree_path, 'rb') as f:
                 causal_tree = pickle.load(f)
         else:
-            causal_tree = find_causal()
-            with open(causal_tree_path, 'wb') as f:
-                pickle.dump(causal_tree, f)
+            raise FileNotFoundError(f"Causal tree file not found: {causal_tree_path}. Please run handle_causal.py first.")
 
         print(f'try replace', repl, score_gap)
         causal_list = []
