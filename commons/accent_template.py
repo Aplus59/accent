@@ -3,9 +3,50 @@ import math
 import os
 import pickle
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
-from commons.handle_causal import find_causal,find_child,extract_parents,get_chains
+from commons.handle_causal import find_causal,find_child
+from collections import defaultdict
 
-import numpy as np
+def extract_parents(causal_tree):
+    """Extract parents dict: child -> parent from anytree causal_tree."""
+    parents = {}
+    for node in causal_tree.descendants:
+        if node.parent and node.parent.name.isdigit():  # Skip non-digit parents like '-1_hybrid'
+            try:
+                child_id = int(node.name)
+                parent_id = int(node.parent.name)
+                parents[child_id] = parent_id
+            except ValueError:
+                continue  # Skip if name not int
+    return parents
+
+def get_chains(visited, parents):
+    """Get list of chains ([older root, child, ..., leaf newer]) from visited."""
+    visited_set = set(visited)
+    children_dict = defaultdict(list)
+    for child in visited_set:
+        parent = parents.get(child)
+        if parent in visited_set:
+            children_dict[parent].append(child)
+    
+    roots = [item for item in visited if item not in parents or parents[item] not in visited_set]
+    
+    chains = []
+    for root in roots:
+        chain = [root]
+        current = root
+        while children_dict[current]:
+            # Assume linear chain, take first (or only) child
+            next_child = children_dict[current][0]
+            chain.append(next_child)
+            current = next_child
+        chains.append(chain)
+    
+    # Isolated items
+    covered = set(sum(chains, []))
+    for item in set(visited) - covered:
+        chains.append([item])
+    
+    return chains
 
 def improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap):
     """Improved O(n^2): Chains from tree, suffixes per chain as options, grouped DP for exact min set."""
