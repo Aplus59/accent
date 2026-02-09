@@ -14,7 +14,6 @@ def main():
     run the full experiment for an algorithm passed via the command line argument --algo
     """
     ks = [20]
-    generate_cf(ks)
     retrain(ks)
     get_new_scores(ks)
     evaluate_files(parse_args, ks)
