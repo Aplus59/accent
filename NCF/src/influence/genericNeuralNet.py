@@ -97,13 +97,11 @@ class GenericNeuralNet(object):
 
         # Initialize session
         # Xóa hoặc sửa dòng này
-        # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-        config = tf.ConfigProto(
-            gpu_options=tf.GPUOptions(allow_growth=True),
-            allow_soft_placement=True,
-            log_device_placement=False
-        )
-        self.sess = tf.Session(config=config)
+        # os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # Giữ nguyên nếu cần giới hạn GPU
+        gpu_options = tf.GPUOptions(allow_growth=True)  # Giữ nguyên
+        config = tf.ConfigProto(gpu_options=gpu_options)  # Giữ nguyên
+        self.sess = tf.compat.v1.Session(config=config)  # Explicit compat.v1
+        # Xóa hoặc comment # K.set_session(self.sess) nếu không dùng Keras
     
         # Setup input
         self.input_placeholder, self.labels_placeholder = self.placeholder_inputs()
@@ -138,7 +136,7 @@ class GenericNeuralNet(object):
         self.preds = self.predictions(self.logits)
 
         # Setup misc
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()  # Explicit compat.v1
 
         # Setup gradients and Hessians
         self.params = self.get_all_params()
@@ -163,8 +161,8 @@ class GenericNeuralNet(object):
         self.all_train_feed_dict = self.fill_feed_dict_with_all_ex(self.data_sets.train)
         self.all_test_feed_dict = self.fill_feed_dict_with_all_ex(self.data_sets.test)
 
-        init = tf.global_variables_initializer()        
-        self.sess.run(init)
+        self.init_op = tf.compat.v1.global_variables_initializer()  # Explicit compat.v1 và lưu vào self.init_op
+        self.sess.run(self.init_op)  # Chạy initializer từ self.init_op
 
         self.vec_to_list = self.get_vec_to_list_fn()
         self.adversarial_loss, self.indiv_adversarial_loss = self.adversarial_loss(self.logits, self.labels_placeholder)

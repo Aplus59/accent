@@ -459,7 +459,7 @@ class MF(BaseEstimator, TransformerMixin):
             self.damping = 0.01
 
             # init
-            self.saver = tf.train.Saver()
+            self.saver = tf.compat.v1.train.Saver()  # Explicit compat.v1
             init = tf.global_variables_initializer()
             self.sess = tf.Session()
             self.sess.run(init)

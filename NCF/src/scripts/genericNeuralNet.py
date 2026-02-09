@@ -8,6 +8,7 @@ import time
 
 import numpy as np
 import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
 from scipy.optimize import fmin_ncg
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
@@ -98,13 +99,11 @@ class GenericNeuralNet(object):
 
         # Initialize session
         # Xóa hoặc sửa dòng này
-        # os.environ["CUDA_VISIBLE_DEVICES"] = "1"
-        config = tf.ConfigProto(
-            gpu_options=tf.GPUOptions(allow_growth=True),
-            allow_soft_placement=True,
-            log_device_placement=False
-        )
-        self.sess = tf.Session(config=config)
+        # os.environ["CUDA_VISIBLE_DEVICES"] = "1"  # Giữ nguyên nếu cần giới hạn GPU
+        gpu_options = tf.GPUOptions(allow_growth=True)  # Giữ nguyên
+        config = tf.ConfigProto(gpu_options=gpu_options)  # Giữ nguyên
+        self.sess = tf.compat.v1.Session(config=config)  # Explicit compat.v1
+        # Xóa hoặc comment # K.set_session(self.sess) nếu không dùng Keras
     
         # Setup input
         self.input_placeholder, self.labels_placeholder = self.placeholder_inputs()
@@ -164,9 +163,9 @@ class GenericNeuralNet(object):
         self.all_train_feed_dict = self.fill_feed_dict_with_all_ex(self.data_sets.train)
         self.all_test_feed_dict = self.fill_feed_dict_with_all_ex(self.data_sets.test)
 
-        init = tf.global_variables_initializer()        
-        self.sess.run(init)
-
+        self.init_op = tf.compat.v1.global_variables_initializer()  # Explicit compat.v1 và lưu vào self.init_op
+        self.sess.run(self.init_op)  # Chạy initializer từ self.init_op
+        
         self.vec_to_list = self.get_vec_to_list_fn()
         self.adversarial_loss, self.indiv_adversarial_loss = self.adversarial_loss(self.logits, self.labels_placeholder)
         if self.adversarial_loss is not None:
@@ -423,7 +422,7 @@ class GenericNeuralNet(object):
         """
         optimizer = tf.train.AdamOptimizer(learning_rate)
         train_op = optimizer.minimize(total_loss, global_step=global_step)
-        adam_vars = [var for var in tf.all_variables() if 'Adam' in var.name]
+        adam_vars = [var for var in tf.global_variables() if 'Adam' in var.name]
         reset_optimizer_op = tf.variables_initializer(adam_vars)
         return train_op, reset_optimizer_op
 

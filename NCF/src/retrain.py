@@ -4,7 +4,7 @@ from time import time
 import numpy as np
 import pandas as pd
 import tensorflow.compat.v1 as tf
-
+tf.disable_v2_behavior()
 from NCF.src.helper import get_model, parse_args
 from commons.helper import read_row_from_result_file, prepare_path
 

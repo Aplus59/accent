@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import tensorflow.compat.v1 as tf
-
+tf.disable_v2_behavior()  # Giữ graph mode nếu chưa migrate
 from NCF.src.helper import get_model
 from NCF.src.helper import get_scores as get_scores_per_user
 from commons.helper import prepare_new_scores, counterfactual2path, get_new_scores_main

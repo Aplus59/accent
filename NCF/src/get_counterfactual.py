@@ -1,6 +1,6 @@
 import pandas as pd
 import tensorflow.compat.v1 as tf
-
+tf.disable_v2_behavior()  
 from NCF.src.accent import Accent
 from NCF.src.fia import FIA
 from NCF.src.helper import get_model
