@@ -138,7 +138,7 @@ class GenericNeuralNet(object):
         self.preds = self.predictions(self.logits)
 
         # Setup misc
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()  # Explicit compat.v1
 
         # Setup gradients and Hessians
         self.params = self.get_all_params()

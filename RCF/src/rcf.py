@@ -460,9 +460,9 @@ class MF(BaseEstimator, TransformerMixin):
 
             # init
             self.saver = tf.compat.v1.train.Saver()  # Explicit compat.v1
-            init = tf.global_variables_initializer()
             self.sess = tf.Session()
-            self.sess.run(init)
+            self.init_op = tf.compat.v1.global_variables_initializer()  # Explicit compat.v1 và lưu vào self.init_op
+            self.sess.run(self.init_op)  # Chạy initializer từ self.init_op
 
             if self.pretrain_flag > 0:
                 weight_saver = tf.train.import_meta_graph(self.save_file + '.meta')
