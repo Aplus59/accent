@@ -3,6 +3,7 @@ import math
 import os
 import pickle
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
+from commons.handle_causal import find_causal,find_child
 from collections import defaultdict
 
 def extract_parents(causal_tree):
@@ -59,13 +60,13 @@ def improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap):
     # Group options: per chain, list of suffix (mutual exclusive)
     group_options = []
     for chain in chains:
-        options = []  # (suffix_list, v, size)
+        options = []  # (suffix_list, v, size, indices)
         for start_idx in range(len(chain)):
             suffix = chain[start_idx:]  # [start older, ..., newer] like [id] + children
             indices = [visited.index(item) for item in suffix]
             v = sum(gap_infl[idx] for idx in indices)
             if v > 0:
-                options.append((suffix, v, len(suffix), indices))  # add indices if need
+                options.append((suffix, v, len(suffix), indices))
         group_options.append(options)
     
     # DP: max v for cost <=k
@@ -94,20 +95,20 @@ def improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap):
     if min_cost == np.inf:
         return [], 0
     
-    # Reconstruct items
-    removed_items = []
+    # Reconstruct indices
+    removed_indices = []
     current_k = min_cost
     while current_k > 0:
         grp_idx, opt_idx, prev_k = prev[current_k]
-        suffix = group_options[grp_idx][opt_idx][0]
-        removed_items.extend(suffix)
+        opt_indices = group_options[grp_idx][opt_idx][3]  # the indices
+        removed_indices.extend(opt_indices)
         current_k = prev_k
     
-    # Use unique items to avoid duplicate counting
-    unique_removed = list(set(removed_items))
-    final_gap = score_gap - sum(gap_infl[visited.index(z)] for z in unique_removed)
+    # Use unique indices
+    unique_removed_indices = list(set(removed_indices))
+    final_gap = score_gap - sum(gap_infl[idx] for idx in unique_removed_indices)
     
-    return sorted(unique_removed), final_gap
+    return sorted(unique_removed_indices), final_gap
 
 class AccentTemplate(ExplanationAlgorithmTemplate):
     @staticmethod
@@ -135,12 +136,13 @@ class AccentTemplate(ExplanationAlgorithmTemplate):
         print(f'try replace', repl, score_gap)
         
         # Thay bằng improved (no need causal_list, sum_infl)
-        removed_items, score_gap = improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap)
+        removed_indices, score_gap = improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap)
         
         print("Score gap",score_gap)
         if score_gap < 0:
+            removed_items = [visited[idx] for idx in removed_indices]
             print(f'replace {repl}: {removed_items}')
-            return removed_items, score_gap
+            return removed_indices, score_gap
         else:
             print(f'cannot replace {repl}')
             return None, 1e9
