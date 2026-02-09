@@ -420,7 +420,8 @@ class GenericNeuralNet(object):
         """
         optimizer = tf.train.AdamOptimizer(learning_rate)
         train_op = optimizer.minimize(total_loss, global_step=global_step)
-        adam_vars = [var for var in tf.compat.v1.global_variables() if 'Adam' in var.name]        reset_optimizer_op = tf.variables_initializer(adam_vars)
+        adam_vars = [var for var in tf.compat.v1.global_variables() if 'Adam' in var.name]        
+        reset_optimizer_op = tf.variables_initializer(adam_vars)
         return train_op, reset_optimizer_op
 
 
