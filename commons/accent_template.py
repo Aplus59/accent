@@ -3,7 +3,7 @@ import math
 import os
 import pickle
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
-from commons.handle_causal import find_causal,find_child
+from commons.handle_causal import find_child
 from collections import defaultdict
 
 def extract_parents(causal_tree):
