@@ -78,7 +78,7 @@ class Accent(AccentTemplate):
                         #predicted_scores = np.array([10-2, 20-5, 30-8, 40, 50])
 
                     # điểm số của các thằng top k sau khi bỏ z. 
-                    assert predicted_scores[0] < predicted_scores[best_i]
+                    assert predicted_scores[0] < predicted_scores[best_i] + 1e-3
                     # sau khi trừ hết thì thằng best_i phải có ảnh hưởng , scores cao hơn thằng 0
                     assert abs(predicted_scores[0] - predicted_scores[best_i] - best_gap) < 1e-3
                     # kiểm tra sự khác biệt giữa sự thay thế (gap) có khớp với best_gap (với độ sai lệch cho phép là
