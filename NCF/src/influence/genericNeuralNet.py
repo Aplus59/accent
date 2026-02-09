@@ -9,7 +9,6 @@ import time
 import numpy as np
 import tensorflow.compat.v1 as tf
 from scipy.optimize import fmin_ncg
-from six.moves import xrange  # pylint: disable=redefined-builtin
 
 tf.disable_v2_behavior()
 from tensorflow.python.ops import array_ops
@@ -47,8 +46,7 @@ def variable_with_weight_decay(name, shape, stddev, wd):
         name, 
         shape, 
         initializer=tf.truncated_normal_initializer(
-            stddev=stddev, 
-            dtype=dtype))
+            stddev=stddev))
  
     if wd is not None:
       weight_decay = tf.multiply(tf.nn.l2_loss(var), wd, name='weight_loss')
@@ -275,7 +273,7 @@ class GenericNeuralNet(object):
         self.reset_datasets()
 
         ret = []
-        for i in xrange(num_iter):
+        for i in range(num_iter):
             feed_dict = self.fill_feed_dict_with_batch(data_set)
             ret_temp = self.sess.run(ops, feed_dict=feed_dict)
             
@@ -335,7 +333,7 @@ class GenericNeuralNet(object):
 
 
     def retrain(self, num_steps, feed_dict):        
-        for step in xrange(num_steps):   
+        for step in range(num_steps):   
             self.sess.run(self.train_op, feed_dict=feed_dict)
 
 
@@ -368,7 +366,7 @@ class GenericNeuralNet(object):
         else:
             load_checkpoints=0
 
-        for step in xrange(load_checkpoints+1, num_steps):
+        for step in range(load_checkpoints+1, num_steps):
             self.update_learning_rate(step)
 
             start_time = time.time()
@@ -424,8 +422,7 @@ class GenericNeuralNet(object):
         """
         optimizer = tf.train.AdamOptimizer(learning_rate)
         train_op = optimizer.minimize(total_loss, global_step=global_step)
-        adam_vars = [var for var in tf.all_variables() if 'Adam' in var.name]
-        reset_optimizer_op = tf.variables_initializer(adam_vars)
+        adam_vars = [var for var in tf.compat.v1.global_variables() if 'Adam' in var.name]        reset_optimizer_op = tf.variables_initializer(adam_vars)
         return train_op, reset_optimizer_op
 
 
@@ -547,7 +544,7 @@ class GenericNeuralNet(object):
 
         self.reset_datasets()
         hessian_vector_val = None
-        for i in xrange(num_iter):
+        for i in range(num_iter):
             feed_dict = self.fill_feed_dict_with_batch(self.data_sets.train, batch_size=0)
             # Can optimize this
             feed_dict = self.update_feed_dict_with_v_placeholder(feed_dict, v)

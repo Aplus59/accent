@@ -2,7 +2,6 @@
 *.npz
 *.index
 *.data-00000-of-00001
-*.csv
 *.tsv
 checkpoint
 .DS_Store

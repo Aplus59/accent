@@ -157,8 +157,13 @@ def compare_algo(file, file2):
     print(f't-test: {ttest_rel(algo_size, algo2_size)[1] / 2}')
 
     # Load causal tree từ pickle thay vì build mới
-    with open('commons\causal_tree.pkl', 'rb') as f:
-        causal_tree = pickle.load(f)
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    causal_tree_path = os.path.join(current_dir, 'causal_tree.pkl')
+    if os.path.exists(causal_tree_path):
+        with open(causal_tree_path, 'rb') as f:
+            causal_tree = pickle.load(f)
+    else:
+        raise FileNotFoundError(f"Causal tree file not found: {causal_tree_path}. Please run handle_causal.py first.")
     
     # thêm causal
     cont_causal_table = np.zeros((2, 2))
