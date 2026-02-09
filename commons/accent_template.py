@@ -104,9 +104,11 @@ def improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap):
         removed_items.extend(suffix)
         current_k = prev_k
     
-    final_gap = score_gap - sum(gap_infl[visited.index(z)] for z in removed_items)
+    # Use unique items to avoid duplicate counting
+    unique_removed = list(set(removed_items))
+    final_gap = score_gap - sum(gap_infl[visited.index(z)] for z in unique_removed)
     
-    return sorted(removed_items), final_gap
+    return sorted(unique_removed), final_gap
 
 class AccentTemplate(ExplanationAlgorithmTemplate):
     @staticmethod
