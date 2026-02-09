@@ -14,7 +14,7 @@ gap_infl = [12, 2, 35, 4, 52, 16, 27, 4, 9, 6, 15, 12, 7, 14, 15, 6, 27, 8, 19, 
 
 
 # Đoạn mã tiếp theo bạn có thể chạy sau khi đã tạo dữ liệu giả
-from handle_causal import find_causal, find_child
+from handle_causal import  find_child
 from anytree import Node, RenderTree, find
 
 def select_optimal_pairs(sum_infl, score_gap):
