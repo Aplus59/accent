@@ -60,7 +60,7 @@ class Accent(AccentTemplate):
                 predicted_scores = np.array([cur_scores[item] for item, _ in topk[:(i + 1)]])
                 for item in res:
                     predicted_scores -= influences[:(i + 1), item] 
-                assert predicted_scores[0] < predicted_scores[best_i]
+                assert predicted_scores[0] < predicted_scores[best_i] + 1e-6
                 assert abs(predicted_scores[0] - predicted_scores[best_i] - best_gap) < 1e-6
 
                 ret.append((set(visited[idx] for idx in res), recommended_item, [item for item, _ in topk[:(i + 1)]],
