@@ -42,8 +42,13 @@ def extract_parents(causal_tree):
     """Extract parents dict: child -> parent from anytree causal_tree."""
     parents = {}
     for node in causal_tree.descendants:
-        if node.parent and node.parent.name != "0":  # Adjust if root is "0" or other
-            parents[int(node.name)] = int(node.parent.name)
+        if node.parent and node.parent.name.isdigit():  # Skip non-digit parents like '-1_hybrid'
+            try:
+                child_id = int(node.name)
+                parent_id = int(node.parent.name)
+                parents[child_id] = parent_id
+            except ValueError:
+                continue  # Skip if name not int
     return parents
 
 def get_chains(visited, parents):
