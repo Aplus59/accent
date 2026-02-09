@@ -36,6 +36,44 @@ month_order = {
     'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12,
     '': 0  # cho trường hợp thiếu
 }
+from collections import defaultdict
+
+def extract_parents(causal_tree):
+    """Extract parents dict: child -> parent from anytree causal_tree."""
+    parents = {}
+    for node in causal_tree.descendants:
+        if node.parent and node.parent.name != "0":  # Adjust if root is "0" or other
+            parents[int(node.name)] = int(node.parent.name)
+    return parents
+
+def get_chains(visited, parents):
+    """Get list of chains ([older root, child, ..., leaf newer]) from visited."""
+    visited_set = set(visited)
+    children_dict = defaultdict(list)
+    for child in visited_set:
+        parent = parents.get(child)
+        if parent in visited_set:
+            children_dict[parent].append(child)
+    
+    roots = [item for item in visited if item not in parents or parents[item] not in visited_set]
+    
+    chains = []
+    for root in roots:
+        chain = [root]
+        current = root
+        while children_dict[current]:
+            # Assume linear chain, take first (or only) child
+            next_child = children_dict[current][0]
+            chain.append(next_child)
+            current = next_child
+        chains.append(chain)
+    
+    # Isolated items
+    covered = set(sum(chains, []))
+    for item in visited - covered:
+        chains.append([item])
+    
+    return chains
 
 # Hàm gọi TMDB API để lấy TMDB ID, collection_id và release_date từ title + year
 def get_tmdb_info(title, year):
@@ -219,6 +257,7 @@ def compare_trees_stats_only(main_root_base, sub_root_tmdb, movies_by_new_id):
                     mid = int(id_str)
                     movie = movies_by_new_id[mid]
                     f.write(f"  - New ID: {mid}, Old ID: {movie['original_id']}, Title: {movie['title']}, Year: {movie['year']}, Release Date: {movie['release_date']}, Collection ID: {movie['collection_id']}\n")
+
 
 def build_hybrid_tree(main_root_base, sub_root_tmdb, movies_by_new_id):
     hybrid_root = Node("-1_hybrid")
