@@ -213,7 +213,8 @@ def evaluate_files(parse_args, ks):
     args = parse_args()
     input_files = [f"{args.algo}_{k}.csv" for k in ks]
     print("eva, causal")
-    causal_tree_path = 'causal_tree.pkl'
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    causal_tree_path = os.path.join(current_dir, 'causal_tree.pkl')
     if os.path.exists(causal_tree_path):
         with open(causal_tree_path, 'rb') as f:
             causal_tree = pickle.load(f)
