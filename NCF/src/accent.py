@@ -58,7 +58,7 @@ class Accent(AccentTemplate):
         ret = []  # lưu kết quả lần thay thế.
         for i in range(1, ks[-1]):
             print("user",user)
-            tmp_res, tmp_gap = Accent.try_replace(topk[i], scores[topk[0]] - scores[topk[i]], influences[0] - influences[i],visited)
+            tmp_res, tmp_gap = Accent.try_replace(topk[i], scores[topk[0]] - scores[topk[i]], influences[0] - influences[i])
             # thử thay thế một phần tử , trả về các item cần remove và gap
             if tmp_res is not None and (
                     res is None or len(tmp_res) < len(res) or (len(tmp_res) == len(res) and tmp_gap < best_gap)):
