@@ -2,7 +2,7 @@ pandas==2.2.3
 scikit-learn==1.6.1
 numpy==1.24.3
 statsmodels==0.14.4
-tensorflow==2.13.1
-tensorflow-addons==0.22.0
+tensorflow==2.15.0          # ← thay thành dòng này (hoặc 2.16.1 nếu muốn latest)
+tensorflow-addons==0.23.0   # ← nên nâng lên 0.23.0 (tương thích TF 2.15+)
 matplotlib==3.9.4
 anytree==2.12.1
