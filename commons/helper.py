@@ -286,3 +286,6 @@ def satisfies_causal_conditions(counterfactual, causal_tree, visited,user_id):
                         print("item",item)
                         return False
     return True
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+causal_tree_path = os.path.join(current_dir, 'causal_tree.pkl')

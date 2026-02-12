@@ -2,30 +2,24 @@ import sys
 import re
 from collections import defaultdict
 import os
-from anytree import Node, RenderTree, find
+from anytree import Node, find
 import pickle
 import requests
-import json
 
-# Thiết lập lại encoding mặc định
 sys.stdout.reconfigure(encoding='utf-8')
 
-# Đường dẫn file
 current_dir = os.path.dirname(os.path.abspath(__file__))
-item_file_path = os.path.join(current_dir, '..', 'commons', 'u.item')
-mapping_file_path = os.path.join(current_dir, 'item_mapping.csv')
+item_file_path = os.path.join(current_dir,  'movies.dat')           # ← movies.dat
+mapping_file_path = os.path.join(current_dir, 'item_mapping.csv')                # ← trong commons
 
-# TMDB API key
+# TMDB API
 TMDB_API_KEY = '047e2b1a953869fb647450e3b181628d'
 TMDB_BASE_URL = 'https://api.themoviedb.org/3'
 
-# Đọc mapping original_item → new_item
+# Đọc mapping original → new
 original_to_new = {}
-if not os.path.exists(mapping_file_path):
-    raise FileNotFoundError(f"Không tìm thấy file mapping: {mapping_file_path}.")
-
 with open(mapping_file_path, 'r', encoding='utf-8') as f:
-    next(f)  # Bỏ qua header
+    next(f)
     for line in f:
         if line.strip():
             orig, new = line.strip().split(',')
@@ -33,11 +27,9 @@ with open(mapping_file_path, 'r', encoding='utf-8') as f:
 
 month_order = {
     'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
-    'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12,
-    '': 0  # cho trường hợp thiếu
+    'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12, '': 0
 }
 
-# Hàm gọi TMDB API để lấy TMDB ID, collection_id và release_date từ title + year
 def get_tmdb_info(title, year):
     search_url = f"{TMDB_BASE_URL}/search/movie"
     params = {
@@ -48,71 +40,56 @@ def get_tmdb_info(title, year):
     }
     response = requests.get(search_url, params=params)
     if response.status_code != 200:
-        print(f"Search Error for '{title} ({year})': {response.text}")
         return None, None, None
-    
     results = response.json().get('results', [])
     if not results:
         return None, None, None
-    
+
     tmdb_id = results[0]['id']
     release_date = results[0].get('release_date', '')
-    
+
     details_url = f"{TMDB_BASE_URL}/movie/{tmdb_id}"
-    params = {'api_key': TMDB_API_KEY, 'language': 'en-US'}
-    response = requests.get(details_url, params=params)
-    if response.status_code != 200:
-        print(f"Details Error for ID {tmdb_id}: {response.text}")
-        return None, None, None
-    
-    details = response.json()
+    details = requests.get(details_url, params={'api_key': TMDB_API_KEY, 'language': 'en-US'}).json()
     collection = details.get('belongs_to_collection')
     collection_id = collection.get('id') if collection else None
-    
+
     return tmdb_id, collection_id, release_date
 
+
 def build_base_tree(movies):
-    # Nhóm theo base_name
     groups = defaultdict(list)
     for movie in movies:
         groups[movie['base_name']].append(movie)
-    
-    main_root_base = Node("-1_base")  # Root cho cây chính
-    
+
+    main_root_base = Node("-1_base")
     for base_name, group in groups.items():
         if len(group) < 2:
-            continue  # Chỉ franchise (>=2)
-        # Sort theo approximate release_date từ u.item
+            continue
         group.sort(key=lambda x: (x['year'], month_order.get(x['month'], 0)))
-        
         root = Node(str(group[0]['new_id']), parent=main_root_base)
-        current_node = root
+        current = root
         for movie in group[1:]:
-            current_node = Node(str(movie['new_id']), parent=current_node)
-    
+            current = Node(str(movie['new_id']), parent=current)
     return main_root_base
 
+
 def build_tmdb_tree(movies):
-    # Nhóm trực tiếp theo collection_id từ dataset
     groups = defaultdict(list)
     for movie in movies:
         if movie['collection_id']:
             groups[movie['collection_id']].append(movie)
-    
+
     sub_root_tmdb = Node("-1_tmdb")
-    
     for coll_id, group in groups.items():
         if len(group) < 2:
             continue
-        # Sort theo release_date (từ movie detail, có thể approximate nếu TMDB miss)
         group.sort(key=lambda x: x['release_date'])
-        
         root = Node(str(group[0]['new_id']), parent=sub_root_tmdb)
-        current_node = root
+        current = root
         for movie in group[1:]:
-            current_node = Node(str(movie['new_id']), parent=current_node)
-    
+            current = Node(str(movie['new_id']), parent=current)
     return sub_root_tmdb
+
 
 def compare_trees_stats_only(main_root_base, sub_root_tmdb, movies_by_new_id):
     print("\nComparison statistics between the main tree (base_name) and the secondary tree (TMDB):")
@@ -220,72 +197,58 @@ def compare_trees_stats_only(main_root_base, sub_root_tmdb, movies_by_new_id):
                     movie = movies_by_new_id[mid]
                     f.write(f"  - New ID: {mid}, Old ID: {movie['original_id']}, Title: {movie['title']}, Year: {movie['year']}, Release Date: {movie['release_date']}, Collection ID: {movie['collection_id']}\n")
 
+
 def build_hybrid_tree(main_root_base, sub_root_tmdb, movies_by_new_id):
     hybrid_root = Node("-1_hybrid")
-    
-    # Thêm tất cả groups từ TMDB (ưu tiên nếu có collection_id)
     for child in sub_root_tmdb.children:
-        # Copy chain
         new_root = Node(child.name, parent=hybrid_root)
         current = new_root
         for desc in child.descendants:
             current = Node(desc.name, parent=current)
-    
-    # Thêm groups từ base_name chỉ nếu tất cả phim trong group có collection_id = None
+
     for child in main_root_base.children:
         group_ids = [child.name] + [d.name for d in child.descendants]
         all_none_coll = all(movies_by_new_id[int(id_str)]['collection_id'] is None for id_str in group_ids)
         if all_none_coll:
-            # Copy chain
             new_root = Node(child.name, parent=hybrid_root)
             current = new_root
             for desc in child.descendants:
                 current = Node(desc.name, parent=current)
-    
     return hybrid_root
+
+
+def find_child(root, name):
+    target_node = find(root, lambda node: node.name == name)
+    return [descendant.name for descendant in target_node.descendants] if target_node else None
+
 
 def find_causal():
     movies = []
     tmdb_cache = {}
     no_collection_titles = []
-    movies_by_tmdb_id = {}
     movies_by_new_id = {}
-    unique_collections = set()
-    
-    with open(item_file_path, encoding="ISO-8859-1") as file:
-        for line in file:
-            if not line.strip():
-                continue
-            parts = line.strip().split('|')
-            if len(parts) < 5:
-                continue
-            movie_id_str = parts[0]
-            title = parts[1]
-            date = parts[2] if len(parts) > 2 else ""
-            url = parts[4] if len(parts) > 4 else ""
 
-            movie_id = int(movie_id_str)
+    with open(item_file_path, encoding='ISO-8859-1') as file:
+        for line in file:
+            if not line.strip(): continue
+            parts = line.strip().split('::')
+            if len(parts) < 2: continue
+
+            movie_id = int(parts[0])
+            title = parts[1]
+
+            year_match = re.search(r'\((\d{4})\)$', title)
+            year = year_match.group(1) if year_match else "1900"
+
             if movie_id not in original_to_new:
                 continue
             new_id = original_to_new[movie_id]
 
-            # Xử lý date
-            if date:
-                date_parts = date.split('-')
-                if len(date_parts) == 3:
-                    day, month, year = date_parts
-                else:
-                    day, month, year = "01", "Jan", "1900"
-            else:
-                day, month, year = "01", "Jan", "1900"
-
-            # Chuẩn hóa base_name
             base_name = re.sub(r'\s*(\(\d{4}\)|\d{4})$', '', title).strip()
             base_name = re.sub(r', (The|A)$', '', base_name).strip()
             base_name = re.sub(r':.*$', '', base_name).strip()
             base_name = re.sub(r' (\d+|[IVXLCDM]+|3-D)$', '', base_name).strip()
 
-            # Lấy TMDB info
             cache_key = f"{title}_{year}"
             if cache_key in tmdb_cache:
                 tmdb_id, collection_id, release_date = tmdb_cache[cache_key]
@@ -294,7 +257,7 @@ def find_causal():
                 tmdb_cache[cache_key] = (tmdb_id, collection_id, release_date)
 
             if not release_date:
-                release_date = f"{year}-{month_order.get(month, 1):02d}-{day.zfill(2)}"
+                release_date = f"{year}-01-01"
 
             movie_dict = {
                 'original_id': movie_id,
@@ -302,34 +265,22 @@ def find_causal():
                 'title': title,
                 'base_name': base_name,
                 'year': year,
-                'month': month,
-                'url': url,
+                'month': 'Jan',
                 'collection_id': collection_id,
                 'release_date': release_date,
                 'tmdb_id': tmdb_id
             }
             movies.append(movie_dict)
             movies_by_new_id[new_id] = movie_dict
-            if tmdb_id:
-                movies_by_tmdb_id[tmdb_id] = movie_dict
-            if collection_id:
-                unique_collections.add(collection_id)
-            else:
+            if not collection_id:
                 no_collection_titles.append(title)
 
-    # Xây cây chính từ base_name
     main_root_base = build_base_tree(movies)
-    
-    # Xây cây phụ từ TMDB collections (chỉ franchise)
     sub_root_tmdb = build_tmdb_tree(movies)
-    
-    # Thống kê so sánh và lưu unmatched vào txt
     compare_trees_stats_only(main_root_base, sub_root_tmdb, movies_by_new_id)
-    
-    # Build hybrid tree
     hybrid_root = build_hybrid_tree(main_root_base, sub_root_tmdb, movies_by_new_id)
-    
-    # Ghi thông tin franchise trong hybrid tree vào file txt (bằng tiếng Anh)
+
+    # Ghi franchise_info.txt
     with open('franchise_info.txt', 'w', encoding='utf-8') as f:
         f.write("Franchise information in hybrid tree:\n\n")
         group_index = 1
@@ -344,29 +295,14 @@ def find_causal():
                 f.write(f"  - New ID: {mid}, Old ID: {movie['original_id']}, Title: {movie['title']}, Year: {movie['year']}, Release Date: {movie['release_date']}, Collection ID: {movie['collection_id']}\n")
             f.write("\n")
             group_index += 1
-    
-    # In stat hybrid
-    num_hybrid_groups = len(list(hybrid_root.children))
-    print(f"\nHybrid tree created with {num_hybrid_groups} groups.")
-    
-    # In phim không có collection_id (bằng tiếng Anh)
-    print("\nMovies without collection_id:")
-    if len(no_collection_titles) < 10:
-        for title in no_collection_titles:
-            print(f"- {title}")
-    else:
-        print(f"Total number: {len(no_collection_titles)}")
+
+    print(f"\nHybrid tree created with {len(list(hybrid_root.children))} groups.")
+    print(f"Movies without collection_id: {len(no_collection_titles)}")
 
     return main_root_base, sub_root_tmdb, hybrid_root
 
-def find_child(root, name):
-    target_node = find(root, lambda node: node.name == name)
-    if target_node:
-        return [descendant.name for descendant in target_node.descendants]
-    else:
-        return None
-    
-# Load hoặc tạo mới (lưu cả ba cây)
+
+# Load hoặc tạo mới
 base_tree_path = 'causal_tree_base.pkl'
 tmdb_tree_path = 'causal_tree_tmdb.pkl'
 hybrid_tree_path = 'causal_tree_hybrid.pkl'
@@ -382,9 +318,9 @@ if os.path.exists(base_tree_path) and os.path.exists(tmdb_tree_path) and os.path
 else:
     main_root_base, sub_root_tmdb, hybrid_root = find_causal()
     with open(base_tree_path, 'wb') as f:
-        pickle.dump(main_root_base, f)  # Lưu cây chính (base)
+        pickle.dump(main_root_base, f)
     with open(tmdb_tree_path, 'wb') as f:
-        pickle.dump(sub_root_tmdb, f)  # Lưu cây phụ (TMDB)
+        pickle.dump(sub_root_tmdb, f)
     with open(hybrid_tree_path, 'wb') as f:
-        pickle.dump(hybrid_root, f)  # Lưu cây hybrid
+        pickle.dump(hybrid_root, f)
     print("Created and saved new trees.")
