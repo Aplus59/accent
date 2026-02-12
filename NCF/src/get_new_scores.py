@@ -55,7 +55,7 @@ def get_new_scores(algo, ks):
     """
     input_files = [f"{algo}_{k}.csv" for k in ks]
 
-    home_dir = '/media02/lhbac17/pretrain-ncf'
+    home_dir = '/media01/lhbac17/pretrain-ncf'
     get_new_scores_main(home_dir, input_files, get_scores)
 
 
