@@ -56,19 +56,21 @@ import heapq
 # Tính toán ảnh hưởng với cấu trúc nhân quả
 def find_counterfactual_set(sum_infl, a):
     # Step 1: Create a dictionary to group items by weight (length of list)
+    if not sum_infl:
+        return [], 0
+
     all_items = {}
     for list_item, value in sum_infl:
         weight = len(list_item)
         if weight not in all_items:
             all_items[weight] = []
-        all_items[weight].append({'item': list_item, 'value': value})
+        if value > 0:
+            all_items[weight].append({'item': list_item, 'value': value})
 
     # Sort each group by descending value
     for weight in all_items:
         all_items[weight].sort(key=lambda x: x['value'], reverse=True)
 
-
-    
     list_item = [[{'item': [],'value': 0,'taken_index': [0] * len(sum_infl)}]]  # Stores the highest odd-summed subset
     taken_index = [0] * len(sum_infl)
     taken_index[1] = 1
@@ -81,11 +83,9 @@ def find_counterfactual_set(sum_infl, a):
     for i in range(2, len(sum_infl) + 1):
         total = [{'value': 0, 'item': [],'taken_index':[0] * (len(sum_infl) + 2)} for _ in range(i *2)]
         for j in range(0,i):
-            print("go go", i - j, j)
             if j  < len(list_item) and len(list_item[j]) > 0:
                 taken_idx = list_item[j][0]['taken_index']
                 if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]):
-                    print("he1")
                     keys = all_items[i - j][taken_idx[i - j]]['item']
                     overlap_items = set(keys) & set(list_item[j][0]['item'])
                     if not overlap_items:
@@ -97,10 +97,8 @@ def find_counterfactual_set(sum_infl, a):
                         )
                         total[j]['taken_index'] = taken_idx[:]
                         total[j]['taken_index'][i - j] += 1
-                        print("not_overlap_list_item", list_item[j][0]['item'], "all", all_items[i - j][taken_idx[i - j]]['item'])
 
                     else:
-                        print("ovl")
                         index = 0
                         while (
                             i - j in all_items and taken_idx[i - j] + index < len(all_items[i - j]) and j < len(list_item)
