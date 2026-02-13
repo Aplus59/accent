@@ -69,22 +69,30 @@ def find_counterfactual_set(sum_infl, a):
                             total[j]['taken_index'] = taken_idx[:]
                             total[j]['taken_index'][i - j] += (index + 1)
                         m = 1
-                        
                         while (
-                            i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j])
-                            and set(all_items[i - j][taken_idx[i - j]]['item']) & set(list_item[j][m]['item'])
+                            i - j in all_items
+                            and m < len(list_item[j])
+                            and list_item[j][m]['taken_index'][i - j] < len(all_items[i - j])
+                            and set(all_items[i - j][list_item[j][m]['taken_index'][i - j]]['item']) & set(list_item[j][m]['item'])
                         ):
-                            m+=1
-                        if i - j in all_items and taken_idx[i - j] < len(all_items[i - j]) and j < len(list_item) and m < len(list_item[j]):
+                            m += 1
+
+                        if (
+                            i - j in all_items
+                            and m < len(list_item[j])
+                            and list_item[j][m]['taken_index'][i - j] < len(all_items[i - j])
+                        ):
+                            t = list_item[j][m]['taken_index'][i - j]
                             total[j + i]['value'] = (
-                                list_item[j][m]['value'] + all_items[i - j][taken_idx[i - j]]['value']
+                                list_item[j][m]['value'] + all_items[i - j][t]['value']
                             )
                             total[j + i]['item'] = (
-                                list_item[j][m]['item'] + all_items[i - j][taken_idx[i - j]]['item']
+                                list_item[j][m]['item'] + all_items[i - j][t]['item']
                             )
                             total[j + i]['taken_index'] = list_item[j][m]['taken_index'][:]
-                            total[j + i]['taken_index'][i - j] += 1
-                            
+                            total[j + i]['taken_index'][i - j] = t + 1
+
+                                                    
 
         filtered_totals = [(index, t) for index, t in enumerate(total) if t['value'] > a]
         if filtered_totals:
