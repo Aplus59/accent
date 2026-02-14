@@ -28,8 +28,7 @@ def find_counterfactual_set(sum_infl, a):
     taken_index = [0] * (len(sum_infl) + 1)
     taken_index[1] = 1
     list_item.append([{'item': all_items[1][0]['item'],'value': all_items[1][0]['value'],'taken_index': taken_index}])  # Stores the highest odd-summed subset
-    
-    
+
 
     if all_items[1][0]['value'] > a:
         return  all_items[1][0]['item'], a - all_items[1][0]['value']

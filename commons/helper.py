@@ -204,85 +204,113 @@ def get_new_scores_main(home_dir, input_files, get_scores):
 
 
 def evaluate_files(parse_args, ks):
-    """
-    Đánh giá thuật toán với các giá trị k khác nhau và tính toán %Ccv.
-    Args:
-        parse_args: Hàm phân tích tham số đầu vào từ dòng lệnh.
-        ks: Danh sách các giá trị k.
-    """
     args = parse_args()
     input_files = [f"{args.algo}_{k}.csv" for k in ks]
-    print("eva, causal")
-    causal_tree_path = 'causal_tree.pkl'
+
+    # === SỬA: Load đúng hybrid tree ===
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    causal_tree_path = os.path.join(current_dir, 'causal_tree.pkl')
+
     if os.path.exists(causal_tree_path):
         with open(causal_tree_path, 'rb') as f:
             causal_tree = pickle.load(f)
+        print(f"Loaded HYBRID causal tree: {causal_tree_path}")
     else:
-        # Nếu không tồn tại, báo lỗi hoặc xử lý tùy ý (không build nữa)
-        raise FileNotFoundError(f"Causal tree file not found: {causal_tree_path}. Please run handle_causal.py first.")
+        raise FileNotFoundError(f"Không tìm thấy hybrid tree: {causal_tree_path}\n"
+                                "Chạy file build cây trước và đảm bảo file tên là causal_tree_hybrid.pkl")
 
     for file in input_files:
-        print(f"Processing file: {file}")
+        print(f"\n=== Processing: {file} ===")
         data = pd.read_csv(file)
 
         swap = 0
         set_size = 0
-        ns = 0  # Đếm số lượng counterfactual thỏa mãn điều kiện nhân quả
+        ns = 0
         total = 0
-        for id, row in data.iterrows():
-            user_id, item_id, topk, counterfactual, predicted_scores, replacement = row[:6]
-            batch_size = 2048
-            path = os.path.normpath(os.path.join(os.path.dirname(__file__), '../NCF/data'))
-            data_sets = load_movielens(path, batch=batch_size, use_recs=True)
-            u_indices = np.where(data_sets.train.x[:, 0] == user_id)[0] # tìm hàng các item người dùng đã tương tác ở tập train . 
-            visited = [int(data_sets.train.x[i, 1]) for i in u_indices]
-            # Assuming counterfactual should be a list
-            if not isinstance(counterfactual, str) or not isinstance(row['actual_scores_avg'], str):
+        violation_count = 0
+
+        visited_cache = {}
+
+        for idx, row in data.iterrows():
+            try:
+                user_id = int(row['user'])
+                item_id = int(row['item'])
+                counterfactual_str = row['counterfactual']
+                actual_scores_str = row.get('actual_scores_avg')
+
+                # Nếu file chưa có actual_scores_avg → bỏ qua (chưa retrain)
+                if not isinstance(counterfactual_str, str) or not isinstance(actual_scores_str, str):
+                    continue
+
+                total += 1
+
+                # === Parse chỉ 1 lần ===
+                topk = literal_eval(row['topk'])
+                counterfactual = literal_eval(counterfactual_str)
+                actual_scores = literal_eval(actual_scores_str)
+
+                assert item_id == topk[0]
+
+                # Tính swap
+                replacement = int(row['replacement'])
+                replacement_rank = topk.index(replacement)
+                if actual_scores[replacement_rank] > actual_scores[0]:
+                    swap += 1
+                    set_size += len(counterfactual)
+
+                # Load visited (cache)
+                if user_id not in visited_cache:
+                    batch_size = 2048
+                    path = os.path.normpath(os.path.join(os.path.dirname(__file__), '../NCF/data'))
+                    data_sets = load_movielens(path, batch=batch_size, use_recs=True)
+                    u_indices = np.where(data_sets.train.x[:, 0] == user_id)[0]
+                    visited_cache[user_id] = [int(data_sets.train.x[i, 1]) for i in u_indices]
+                visited = visited_cache[user_id]
+
+                # Kiểm tra causal + in chi tiết lỗi
+                is_valid, violations = satisfies_causal_conditions_with_details(
+                    counterfactual, causal_tree, visited, user_id, idx
+                )
+
+                if is_valid:
+                    ns += 1
+                else:
+                    violation_count += 1
+                    print(f"→ VIOLATION at row {idx} | user {user_id} | target {item_id}")
+                    for item, desc in violations:
+                        print(f"    Item {item} → descendant {desc} (đã xem nhưng không remove)")
+
+            except Exception as e:
+                print(f"Error at row {idx}: {e}")
                 continue
-            total +=1
-            topk = literal_eval(topk)
-            counterfactual = literal_eval(counterfactual)
-            assert item_id == topk[0]
-            actual_scores = literal_eval(row['actual_scores_avg'])
 
-            replacement_rank = topk.index(replacement)
-            if actual_scores[replacement_rank] > actual_scores[0]:
-                swap += 1
-                set_size += len(counterfactual)
-                print("id", id, "set_size",set_size)
+        # Kết quả
+        ccv = ns / total * 100 if total > 0 else 0
+        print(f"\nFile: {file}")
+        print(f"  Total explanations     : {total}")
+        print(f"  Valid causal           : {ns} ({ccv:.2f}%)")
+        print(f"  Violations             : {violation_count}")
+        print(f"  Swap rate              : {swap}/{total} = {swap/total:.4f}")
+        print(f"  Avg set size           : {set_size / swap if swap > 0 else 0:.2f}")
+        print("=" * 70)
 
-            # Kiểm tra điều kiện nhân quả
-            if satisfies_causal_conditions(counterfactual, causal_tree, visited,user_id):
-                ns += 1
-
-        # Tính toán %Ccv
-        ccv = ns / total * 100
-        print("set_size",set_size,"swqp",swap )
-        print('swap', swap, swap / data.shape[0])
-        print('size', set_size / swap if swap > 0 else 0)
-        print(f'Causal-constraint validity (%Ccv): {ccv:.2f}%')
-
-def satisfies_causal_conditions(counterfactual, causal_tree, visited,user_id):
+def satisfies_causal_conditions_with_details(counterfactual, causal_tree, visited, user_id, row_idx):
     """
-    Kiểm tra điều kiện nhân quả.
-    Args:
-        counterfactual: Danh sách các item bị loại bỏ.
-        causal_tree: Cây nhân quả được xây dựng từ find_causal().
-    Returns:
-        True nếu tất cả các điều kiện nhân quả được thỏa mãn, False nếu vi phạm.
+    Trả về (is_valid, list_of_violations)
+    violations = [(item, descendant), ...]
     """
-        
+    violations = []
     for item in counterfactual:
-        if item != 0:
-        # Tìm danh sách các hậu duệ của item trong causal_tree
-            descendants = find_child(causal_tree, str(item))
-            # Nếu tìm được hậu duệ, kiểm tra xem có item nào trong counterfactual là hậu duệ của item này không
-            if descendants is not None:
-                for descendant in descendants:
-                    # Nếu hậu duệ của item bị bỏ mà item đó không có trong counterfactual, thì vi phạm nhân quả
-                    if (int(descendant) not in counterfactual) and (int(descendant) in visited):
-                        # Assuming counterfactual should be a list
-                        print("descendant",descendant)
-                        print("item",item)
-                        return False
-    return True
+        if item == 0:
+            continue
+        descendants = find_child(causal_tree, str(item))
+        if not descendants:
+            continue
+
+        for desc_str in descendants:
+            desc_id = int(desc_str)
+            if desc_id in visited and desc_id not in counterfactual:
+                violations.append((item, desc_id))
+
+    is_valid = len(violations) == 0
+    return is_valid, violations
