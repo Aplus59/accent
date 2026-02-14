@@ -5,76 +5,64 @@ import pickle
 from commons.explanation_algorithm_template import ExplanationAlgorithmTemplate
 from commons.handle_causal import find_causal,find_child
 from collections import defaultdict
+from anytree import find
 
-def extract_parents(causal_tree):
-    """Extract parents dict: child -> parent from anytree causal_tree."""
-    parents = {}
-    for node in causal_tree.descendants:
-        if node.parent and node.parent.name.isdigit():  # Skip non-digit parents like '-1_hybrid'
-            try:
-                child_id = int(node.name)
-                parent_id = int(node.parent.name)
-                parents[child_id] = parent_id
-            except ValueError:
-                continue  # Skip if name not int
-    return parents
-
-def get_chains(visited, parents):
-    """Get list of chains ([older root, child, ..., leaf newer]) from visited."""
-    visited_set = set(visited)
-    children_dict = defaultdict(list)
-    for child in visited_set:
-        parent = parents.get(child)
-        if parent in visited_set:
-            children_dict[parent].append(child)
-    
-    roots = [item for item in visited if item not in parents or parents[item] not in visited_set]
-    
+def get_global_chains(root):
+    """Trả về tất cả các chain đầy đủ trong toàn bộ cây (mỗi franchise là 1 chain tuyến tính)."""
     chains = []
-    for root in roots:
-        chain = [root]
-        current = root
-        while children_dict[current]:
-            # Assume linear chain, take first (or only) child
-            next_child = children_dict[current][0]
-            chain.append(next_child)
-            current = next_child
-        chains.append(chain)
-    
-    # Isolated items
-    covered = set(sum(chains, []))
-    for item in set(visited) - covered:
-        chains.append([item])
-    
+    for franchise_root in root.children:          # mỗi child của -1_hybrid là root của 1 franchise
+        chain = []
+        current = franchise_root
+        while current and current.name.isdigit():
+            chain.append(int(current.name))
+            if current.children:
+                current = current.children[0]     # chỉ có 1 con
+            else:
+                break
+        if chain:
+            chains.append(chain)
     return chains
 
+
 def improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap):
-    """Improved O(n^2): Chains from tree, suffixes per chain as options, grouped DP for exact min set."""
+    """
+    Sửa hoàn toàn: dùng full global chain + project lên visited items.
+    Đảm bảo: nếu remove item cũ → phải remove hết tất cả descendant đã xem (không còn gap).
+    """
     n = len(visited)
     if n == 0:
         return [], 0
-    
-    parents = extract_parents(causal_tree)
-    chains = get_chains(visited, parents)
-    
-    # Group options: per chain, list of suffix (mutual exclusive)
-    group_options = []
-    for chain in chains:
-        options = []  # (suffix_list, v, size, indices)
-        for start_idx in range(len(chain)):
-            suffix = chain[start_idx:]  # [start older, ..., newer] like [id] + children
-            indices = [visited.index(item) for item in suffix]
-            v = sum(gap_infl[idx] for idx in indices)
+
+    visited_set = set(visited)
+    visited_idx = {item: i for i, item in enumerate(visited)}   # item -> index trong visited
+
+    # 1. Lấy tất cả chain toàn cục
+    global_chains = get_global_chains(causal_tree)
+
+    # 2. Với mỗi global chain, lấy phần đã xem (theo thứ tự cũ → mới)
+    group_options = []          # mỗi group = 1 franchise có phim đã xem
+    for gchain in global_chains:
+        watched = [item for item in gchain if item in visited_set]
+        if len(watched) < 1:
+            continue
+
+        options = []
+        for start in range(len(watched)):
+            suffix = watched[start:]                     # suffix của các phim đã xem
+            indices = [visited_idx[item] for item in suffix]
+            v = sum(gap_infl[i] for i in indices)
             if v > 0:
                 options.append((suffix, v, len(suffix), indices))
-        group_options.append(options)
-    
-    # DP: max v for cost <=k
+
+        if options:
+            group_options.append(options)
+
+    # 3. DP giống cũ: chọn đúng 1 option mỗi group (mutually exclusive suffixes)
     max_cost = n
     dp = [-np.inf] * (max_cost + 1)
     dp[0] = 0.0
     prev = [None] * (max_cost + 1)
-    
+
     for grp_idx, options in enumerate(group_options):
         temp_dp = dp[:]
         temp_prev = prev[:]
@@ -86,29 +74,28 @@ def improved_find_counterfactual_set(gap_infl, visited, causal_tree, score_gap):
                     temp_prev[k] = (grp_idx, opt_idx, k - c)
         dp = temp_dp
         prev = temp_prev
-    
-    # Min cost >= score_gap
+
+    # Tìm min cost đủ score_gap
     min_cost = np.inf
     for k in range(max_cost + 1):
         if dp[k] >= score_gap and k < min_cost:
             min_cost = k
     if min_cost == np.inf:
         return [], 0
-    
-    # Reconstruct indices
+
+    # Reconstruct
     removed_indices = []
     current_k = min_cost
     while current_k > 0:
         grp_idx, opt_idx, prev_k = prev[current_k]
-        opt_indices = group_options[grp_idx][opt_idx][3]  # the indices
-        removed_indices.extend(opt_indices)
+        indices = group_options[grp_idx][opt_idx][3]
+        removed_indices.extend(indices)
         current_k = prev_k
-    
-    # Use unique indices
-    unique_removed_indices = list(set(removed_indices))
+
+    unique_removed_indices = sorted(set(removed_indices))
     final_gap = score_gap - sum(gap_infl[idx] for idx in unique_removed_indices)
-    
-    return sorted(unique_removed_indices), final_gap
+
+    return unique_removed_indices, final_gap
 
 class AccentTemplate(ExplanationAlgorithmTemplate):
     @staticmethod

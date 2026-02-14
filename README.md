@@ -104,7 +104,7 @@ For each algorithm, run the following commands to run the experiment. The script
 
 ### NCF
 ```bash
-cd /workspace/accent/NCF/src
+cd NCF/src
 python3 experiment.py --algo accent
 ```
 
